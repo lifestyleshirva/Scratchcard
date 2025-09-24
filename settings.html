@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scratch Card Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      color: #333;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      padding: 20px;
+    }
+    h2 { text-align:center; color:#222; }
+    label { display:block; margin:12px 0 6px; font-weight:bold; }
+    input, textarea {
+      width:100%; padding:12px; border:1px solid #ccc;
+      border-radius:10px; font-size:14px; box-sizing:border-box;
+    }
+    button {
+      margin-top:18px; padding:12px; width:100%;
+      background:#4CAF50; color:white; font-size:16px;
+      border:none; border-radius:10px; cursor:pointer;
+    }
+    button:hover { background:#43a047; }
+    #status { margin-top:15px; font-weight:bold; text-align:center; }
+    .range-box {
+      background:#fafafa; padding:15px; margin:12px 0;
+      border-radius:12px; border:1px solid #ddd;
+      box-shadow:0 2px 5px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Update Scratch Settings</h2>
+
+  <label>First Screen Heading</label>
+  <input type="text" id="firstScreenHeading">
+
+  <label>PIN</label>
+  <input type="text" id="pin">
+
+  <label>Second Screen Heading</label>
+  <input type="text" id="secondScreenHeading">
+
+  <label>Terms & Conditions (one per line)</label>
+  <textarea id="terms" rows="5"></textarea>
+
+  <label>Master Bill</label>
+  <input type="text" id="masterBill">
+
+  <label>WhatsApp Number</label>
+  <input type="text" id="whatsapp">
+
+  <label>WhatsApp Message Template</label>
+  <textarea id="whatsappMessage" rows="5"></textarea>
+
+  <h3>Gift Ranges</h3>
+  <div id="giftRanges"></div>
+  <button type="button" onclick="addRange()">+ Add Range</button>
+
+  <button type="button" onclick="saveSettings()">Save to GitHub</button>
+  <p id="status"></p>
+</div>
+
+<script>
+const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"; // 🔑 replace with your PAT (contents:write enabled)
+const REPO = "lifestyleshirva/Scratchcard"; 
+const FILE_PATH = "settings.json";
+const BRANCH = "main";
+
+let latestSha = null;
+
+// Load settings.json from GitHub
+async function loadSettings(){
+  const url = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
+  const resp = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` }});
+  const data = await resp.json();
+  if(data.content){
+    latestSha = data.sha;
+    const settings = JSON.parse(atob(data.content));
+
+    document.getElementById("firstScreenHeading").value = settings.firstScreenHeading || "";
+    document.getElementById("pin").value = settings.pin || "";
+    document.getElementById("secondScreenHeading").value = settings.secondScreenHeading || "";
+    document.getElementById("terms").value = (settings.terms || []).join("\n");
+    document.getElementById("masterBill").value = settings.masterBill || "";
+    document.getElementById("whatsapp").value = settings.whatsapp || "";
+    document.getElementById("whatsappMessage").value = settings.whatsappMessage || "";
+
+    const giftRangesDiv = document.getElementById("giftRanges");
+    giftRangesDiv.innerHTML = "";
+    (settings.giftRanges || []).forEach(r => addRange(r.min,r.max,r.gifts.join(",")));
+  }
+}
+
+// Add gift range UI box
+function addRange(min="",max="",gifts=""){
+  const div=document.createElement("div");
+  div.className="range-box";
+  div.innerHTML=`
+    <label>Min:</label><input type="number" class="min" value="${min}">
+    <label>Max:</label><input type="number" class="max" value="${max}">
+    <label>Gifts (comma separated):</label><input type="text" class="gifts" value="${gifts}">
+  `;
+  document.getElementById("giftRanges").appendChild(div);
+}
+
+// Save to GitHub
+async function saveSettings(){
+  const ranges=[];
+  document.querySelectorAll(".range-box").forEach(box=>{
+    ranges.push({
+      min:parseInt(box.querySelector(".min").value)||0,
+      max:parseInt(box.querySelector(".max").value)||0,
+      gifts:box.querySelector(".gifts").value.split(",").map(g=>g.trim()).filter(g=>g)
+    });
+  });
+
+  const newSettings={
+    firstScreenHeading: document.getElementById("firstScreenHeading").value,
+    pin: document.getElementById("pin").value,
+    secondScreenHeading: document.getElementById("secondScreenHeading").value,
+    terms: document.getElementById("terms").value.split("\n").map(t=>t.trim()).filter(t=>t),
+    masterBill: document.getElementById("masterBill").value,
+    whatsapp: document.getElementById("whatsapp").value,
+    whatsappMessage: document.getElementById("whatsappMessage").value,
+    giftRanges: ranges
+  };
+
+  const url=`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
+  const result = await fetch(url,{
+    method:"PUT",
+    headers:{
+      "Authorization":`token ${GITHUB_TOKEN}`,
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      message:"Update settings via settings.html",
+      content:btoa(JSON.stringify(newSettings,null,2)),
+      sha:latestSha,
+      branch:BRANCH
+    })
+  });
+
+  if(result.ok){
+    document.getElementById("status").innerText="✅ Settings updated on GitHub!";
+    loadSettings(); 
+  } else {
+    document.getElementById("status").innerText="❌ Error updating settings!";
+  }
+}
+
+loadSettings();
+</script>
+</body>
+</html>
