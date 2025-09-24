@@ -19,7 +19,6 @@ body, html {
     justify-content: flex-start;
     background: #f0f0f0;
 }
-
 /* ===== Header ===== */
 header {
     background: #4CAF50;
@@ -31,7 +30,6 @@ header {
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-
 /* ===== Dashboard / First Screen ===== */
 .dashboard {
     background: white;
@@ -138,7 +136,6 @@ header {
     0%,100%{ color:#FFD700; transform:scale(1); text-shadow:0 0 5px #FFD700; }
     50%{ color:#FF4500; transform:scale(1.1); text-shadow:0 0 10px #FF4500; }
 }
-
 /* Circle Scratch Canvas */
 #scratchCanvas {
     width: 90vw;
@@ -146,7 +143,7 @@ header {
     aspect-ratio: 1/1;
     border-radius: 50%;
     display: block;
-    margin: px auto;
+    margin: 0 auto;
     touch-action: none;
     position: relative;
     z-index: 2;
@@ -172,7 +169,6 @@ header {
     box-sizing:border-box;
     z-index:1;
 }
-
 #afterScratchConditionBox #winningInfo {
     font-size: 1.5rem;     
     font-weight: bold;      
@@ -180,7 +176,6 @@ header {
     text-shadow: 1px 1px 5px #FFD700; 
     margin: 15px 0;         
 }
-
 /* Footer and Lamps */
 .lamp-container { width:100%; display:flex; justify-content:space-around; margin-top:10px; }
 .lamp { width:25px; height:25px; background: radial-gradient(circle,#FFD700 60%,#FF8C00 100%); border-radius:50%; box-shadow:0 0 10px #FFD700; }
@@ -230,12 +225,12 @@ header {
 
 <!-- First Screen -->
 <div class="dashboard" id="firstScreen">
+    <h3 id="firstHeading">Enter Details</h3>
     <input type="text" id="name" placeholder="Enter Your Name">
     <input type="text" id="billNo" placeholder="Enter Your Bill Number">
     <input type="number" id="billAmt" placeholder="Enter Your Bill Amount">
     <button id="proceedBtn" onclick="proceed()">Proceed</button>
     <div id="msg" class="message"></div>
-
     <div id="firstScreenConditionBox">
         <span id="condCustName">Customer: </span>
         <span id="condBillNo">Bill Number: </span>
@@ -243,21 +238,12 @@ header {
         <span id="condCouponCode">Coupon Code: </span>
         <span id="condWinningGift">Winning Gift: </span>
     </div>
-
-    <!-- Terms & Conditions moved here -->
-    <div id="termsAndConditions">
-        * Scratch Card is valid only on purchases above ₹1000.<br>
-        * Scratch Card is valid for 10 days only.<br>
-        * Each customer can use only one scratch card per purchase.<br>
-        * Take a screenshot of the result.<br>
-        * No exchange. Scratch card is final.<br>
-        * Scratch cards are non-transferable & non-exchangeable
-    </div>
+    <div id="termsAndConditions"></div>
 </div>
 
 <!-- Second Screen -->
 <div class="scratch-container" id="secondScreen">
-    <div class="header-text">Scratch & Win🏆</div>
+    <div class="header-text" id="secondHeading">Scratch & Win🏆</div>
     <div style="position:relative;">
         <canvas id="scratchCanvas" width="300" height="300"></canvas>
         <div id="offer"></div>
@@ -266,7 +252,6 @@ header {
         <div class="lamp"></div><div class="lamp"></div>
     </div>
     <div class="footer-text">© 2025 Life Style Shirva 💖</div>
-
     <div id="afterScratchConditionBox">
         <h1 class="blinking">🌟💰 Congratulations! 🏆 🌟</h1>
         <span id="afterCustName">Customer: </span>
@@ -277,30 +262,49 @@ header {
         <span id="scratchDateTime">Date & Time: DD-MM-YYYY</span>
         <a href="#" id="whatsappButton" style="background:green;color:white;padding:12px 30px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">Send to WhatsApp</a>
     </div>
-
     <div class="celebration" id="celebrationContainer"></div>
 </div>
 
 <script>
-// ===== Security PIN =====
-const SECURITY_PIN = "9453"; // change this to your PIN
+/* ===== Load Settings from GitHub ===== */
+let SECURITY_PIN="9453", MASTER_BILL_NUMBER="MASTER123", WHATSAPP_NUMBER="918431270716";
+let TERMS=[], FIRST_HEADING="Enter Details", SECOND_HEADING="Scratch & Win", WHATSAPP_MESSAGE="";
+let DEFAULT_GIFTS=["🎁 Surprise Gift","💰 Cashback Offer"];
 
-// ===== Master Bill Number =====
-const MASTER_BILL_NUMBER = "MASTER123"; 
+async function loadSettingsFromGitHub() {
+  const url="https://raw.githubusercontent.com/lifestyleshirva/Scratchcard/main/settings.json";
+  try {
+    const resp=await fetch(url);
+    if(resp.ok){
+      const s=await resp.json();
+      SECURITY_PIN = s.pin || SECURITY_PIN;
+      MASTER_BILL_NUMBER = s.masterBill || MASTER_BILL_NUMBER;
+      WHATSAPP_NUMBER = s.whatsapp || WHATSAPP_NUMBER;
+      FIRST_HEADING = s.firstScreenHeading || FIRST_HEADING;
+      SECOND_HEADING = s.secondScreenHeading || SECOND_HEADING;
+      TERMS = s.terms || TERMS;
+      WHATSAPP_MESSAGE = s.whatsappMessage || "";
+      DEFAULT_GIFTS = (s.giftRanges && s.giftRanges.length>0)?s.giftRanges[0].gifts:DEFAULT_GIFTS;
+      // Apply UI
+      document.getElementById("firstHeading").innerText = FIRST_HEADING;
+      document.getElementById("secondHeading").innerText = SECOND_HEADING;
+      document.getElementById("termsAndConditions").innerHTML = TERMS.map(t=>"* "+t).join("<br>");
+    }
+  }catch(e){console.error("settings load error",e);}
+}
+loadSettingsFromGitHub();
 
-// ===== LocalStorage for used bills =====
+/* ===== LocalStorage for used bills ===== */
 let usedBills = JSON.parse(localStorage.getItem('usedBills') || '[]');
 function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedBills)); }
 
-// ===== Check PIN on page load =====
+/* ===== PIN Check ===== */
 window.onload = function() {
     if(localStorage.getItem("visitedOnce")) {
         document.getElementById("firstScreen").style.display = "none";
         document.getElementById("pinScreen").style.display = "block";
     }
 };
-
-// ===== PIN Check =====
 function checkPin() {
     const pin = document.getElementById("pinInput").value;
     if(pin === SECURITY_PIN){
@@ -312,7 +316,7 @@ function checkPin() {
     }
 }
 
-// ===== First Screen Logic =====
+/* ===== First Screen Logic ===== */
 function proceed() {
     const name = document.getElementById('name').value.trim();
     const billNo = document.getElementById('billNo').value.trim();
@@ -320,19 +324,13 @@ function proceed() {
     const billAmt = parseFloat(billAmtInput);
     const msg = document.getElementById('msg');
     const condBox = document.getElementById('firstScreenConditionBox');
-    msg.innerHTML = ""; 
-    msg.className="message";
-
+    msg.innerHTML = ""; msg.className="message";
     if(!name || !billNo || !billAmtInput || isNaN(billAmt)){ 
-        msg.innerHTML="⚠️ Fill all fields!"; 
-        msg.classList.add("error"); 
-        return; 
+        msg.innerHTML="⚠️ Fill all fields!"; msg.classList.add("error"); return; 
     }
-
     let used = usedBills.find(b=>b.billNo===billNo);
     if(billNo !== MASTER_BILL_NUMBER && used){
-        msg.innerHTML="❌ Bill number already exists!"; 
-        msg.classList.add("error");
+        msg.innerHTML="❌ Bill number already exists!"; msg.classList.add("error");
         condBox.style.display='block';
         document.getElementById('condCustName').innerText=`Customer Name: ${used.name}`;
         document.getElementById('condBillNo').innerText=`Bill Number: ${used.billNo}`;
@@ -341,102 +339,60 @@ function proceed() {
         document.getElementById('condWinningGift').innerText=`Winning Gift: ${used.gift || '-'}`;
         return;
     }
-
     if(billAmt < 1000 && billNo !== MASTER_BILL_NUMBER){ 
-        msg.innerHTML="⚠️ Scratch card not available under ₹1000"; 
-        msg.classList.add("error"); 
-        return; 
+        msg.innerHTML="⚠️ Scratch card not available under ₹1000"; msg.classList.add("error"); return; 
     }
-
     if(billNo !== MASTER_BILL_NUMBER){
-        usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); 
-        saveUsedBills();
+        usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); saveUsedBills();
     }
-
-    msg.innerHTML=`✅ Hello ${name}, your bill is accepted!`; 
-    msg.classList.add("success");
-
+    msg.innerHTML=`✅ Hello ${name}, your bill is accepted!`; msg.classList.add("success");
     condBox.style.display='block';
     document.getElementById('condCustName').innerText=`Customer Name: ${name}`;
     document.getElementById('condBillNo').innerText=`Bill Number: ${billNo}`;
     document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${billAmt}`;
     document.getElementById('condCouponCode').innerText=`Coupon Code: -`;
     document.getElementById('condWinningGift').innerText=`Winning Gift: -`;
-
     if(billNo !== MASTER_BILL_NUMBER && billAmt >= 1000){
         document.getElementById('firstScreen').style.display="none";
         document.getElementById('secondScreen').style.display="flex";
-
-        // mark visited for PIN
         localStorage.setItem("visitedOnce", "true");
-
-        // Immediately show offer behind scratch canvas
-        const gifts = ['🎁 Surprise Gift','💰 Cashback Offer'];
-        const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
-        const offerDiv = document.getElementById('offer');
-        offerDiv.innerText = randomGift;
-        offerDiv.style.display = 'flex';
+        const randomGift = DEFAULT_GIFTS[Math.floor(Math.random()*DEFAULT_GIFTS.length)];
+        document.getElementById('offer').innerText = randomGift;
     }
 }
 
-// ===== Scratch Logic =====
+/* ===== Scratch Logic ===== */
 const canvas = document.getElementById('scratchCanvas');
 const ctx = canvas.getContext('2d');
 const offer = document.getElementById('offer');
 let isDrawing=false, scratchActions=0, revealed=false;
-
 function getPointerPos(e){ const rect=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y:(e.touches?e.touches[0].clientY:e.clientY)-rect.top}; }
 function scratch(e){ const pos=getPointerPos(e); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(pos.x,pos.y,20,0,Math.PI*2); ctx.fill(); }
 function startScratch(e){ if(revealed) return; isDrawing=true; }
 function performScratch(e){ if(!isDrawing || revealed) return; scratch(e); }
-function endScratch(e){
-    if(!revealed && isDrawing){
-        scratchActions++; 
-        if(scratchActions>=4){ 
-            startCelebrationAndAfterBox();
-        }
-    }
-    isDrawing=false;
-}
+function endScratch(e){ if(!revealed && isDrawing){ scratchActions++; if(scratchActions>=4){ startCelebrationAndAfterBox(); } } isDrawing=false; }
 
-// ===== Reveal after scratch =====
+/* ===== Reveal after scratch ===== */
 function generateCouponCode(){ return 'LS-'+Math.random().toString(36).substring(2,10).toUpperCase(); }
 function getCurrentDateTime(){ return new Date().toLocaleString(); }
-
 function updateWhatsAppButton(randomGift, couponCode, dateTime){
     const name = document.getElementById('name').value.trim();
     const billNo = document.getElementById('billNo').value.trim();
     const billAmt = document.getElementById('billAmt').value.trim();
-    const message=`Hi Life Style Shirva Team.
-I am very happy with this Scratch & Win Card.\n\nCustomer Name: ${name}\nBill No: ${billNo}\nBill Amount: ₹${billAmt}\nWinning Prize: ${randomGift}\nCard No: ${couponCode}\nDate & Time: ${dateTime}`;
+    const message = (WHATSAPP_MESSAGE || `Hi Life Style Shirva Team.\nI am very happy with this Scratch & Win Card.`)+`\n\nCustomer Name: ${name}\nBill No: ${billNo}\nBill Amount: ₹${billAmt}\nWinning Prize: ${randomGift}\nCard No: ${couponCode}\nDate & Time: ${dateTime}`;
     const encodedMessage=encodeURIComponent(message);
-    document.getElementById('whatsappButton').href=`https://wa.me/918431270716?text=${encodedMessage}`;
+    document.getElementById('whatsappButton').href=`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
 }
-
 function startCelebrationAndAfterBox(){
-    const billAmt = parseFloat(document.getElementById('billAmt').value.trim());
-    let gifts=[];
-    if(billAmt>=1000 && billAmt<1500 || document.getElementById('billNo').value.trim() === MASTER_BILL_NUMBER) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback','😢 Better luck next time'];
-    else if(billAmt>=1500 && billAmt<2000) gifts=['💰20 ₹ Cashback','💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback','😢 Better luck next time'];
-    else if(billAmt>=2000 && billAmt<2500) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback','💰60 ₹ Cashback'];
-    else if(billAmt>=2500 && billAmt<3000) gifts=['💰40 ₹ Cashback','💰50 ₹ Cashback','💰70 ₹ Cashback','💰80 ₹ Cashback'];
-    else if(billAmt>=3000 && billAmt<3500) gifts=['💰50 ₹ Cashback','💰70 ₹ Cashback','💰80 ₹ Cashback','💰90 ₹ Cashback'];
-    else if(billAmt>=3500 && billAmt<4000) gifts=['💰60 ₹ Cashback','💰80 ₹ Cashback','💰90 ₹ Cashback','💰100 ₹ Cashback'];
-    else if(billAmt>=4000 && billAmt<4500) gifts=['💰70 ₹ Cashback','💰90 ₹ Cashback','💰100 ₹ Cashback','💰120 ₹ Cashback'];
-    else if(billAmt>=4500 && billAmt<5000) gifts=['💰80 ₹ Cashback','💰100 ₹ Cashback','💰120 ₹ Cashback','💰150 ₹ Cashback'];
-    else if(billAmt>=5000) gifts=['💰90 ₹ Cashback','💰100 ₹ Cashback','💰150 ₹ Cashback','💰200 ₹ Cashback','😢 Better luck next time'];
-    const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
+    const randomGift=offer.innerText;
     revealFull(randomGift);
 }
-
 function revealFull(randomGift){
     revealed=true; ctx.clearRect(0,0,canvas.width,canvas.height); offer.innerText=randomGift; offer.style.display='flex';
-
     setTimeout(()=>{
         const name = document.getElementById('name').value.trim();
         const billNo = document.getElementById('billNo').value.trim();
         const billAmt = document.getElementById('billAmt').value.trim();
-
         if(randomGift!=='😢 Better luck next time'){
             const code=generateCouponCode(); 
             const dateTime=getCurrentDateTime();
@@ -448,44 +404,13 @@ function revealFull(randomGift){
             document.getElementById('scratchDateTime').innerText=`Date & Time: ${dateTime}`;
             document.getElementById('afterScratchConditionBox').style.display='block';
             updateWhatsAppButton(randomGift,code,dateTime);
-
-            const used = usedBills.find(b=>b.billNo===billNo);
-            if(used){ 
-                used.gift=randomGift; 
-                used.coupon=code; 
-                saveUsedBills();
-                document.getElementById('condCouponCode').innerText=`Coupon Code: ${code}`;
-                document.getElementById('condWinningGift').innerText=`Winning Gift: ${randomGift}`;
-            }
-
-            const celebrationContainer=document.getElementById('celebrationContainer'); 
-            celebrationContainer.innerHTML='';
-            const particles=['🌸','✨','🎉','💥','🌟','💫','🌟','✨','⚡'];
-            for(let i=0;i<60;i++){ 
-                const span=document.createElement('span'); 
-                span.className='particle';
-                span.innerText=particles[Math.floor(Math.random()*particles.length)];
-                span.style.left=Math.random()*window.innerWidth+'px';
-                span.style.top=Math.random()*window.innerHeight+'px';
-                span.style.setProperty('--x',(Math.random()-0.5)*600+'px');
-                span.style.setProperty('--y',(Math.random()-0.5)*600+'px');
-                span.style.animationDelay=Math.random()+'s'; 
-                celebrationContainer.appendChild(span);
-            } 
-            celebrationContainer.style.display='block'; 
-            setTimeout(()=>{celebrationContainer.style.display='none';},5000);
         } else { offer.innerText='😢 Better luck next time.'; } 
-    },3000);
+    },1500);
 }
-
-// Initialize scratch overlay
-ctx.fillStyle='silver'; 
-ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.font='bold 18px Arial'; 
-ctx.fillStyle='black'; 
-ctx.textAlign='center';
+/* ===== Initialize Scratch Overlay ===== */
+ctx.fillStyle='silver'; ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.font='bold 18px Arial'; ctx.fillStyle='black'; ctx.textAlign='center';
 ctx.fillText('SCRATCH HERE 🎉',canvas.width/2,canvas.height/2);
-
 canvas.addEventListener('pointerdown', startScratch); 
 canvas.addEventListener('pointermove', performScratch);
 canvas.addEventListener('pointerup', endScratch); 
