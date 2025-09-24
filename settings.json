@@ -1,0 +1,43 @@
+{
+  "firstScreenHeading": "Enter Your Billing Details",
+  "pin": "9453",
+  "secondScreenHeading": "Scratch & Win 🏆",
+  "terms": [
+    "Scratch Card is valid only on purchases above ₹1000.",
+    "Scratch Card is valid for 10 days only.",
+    "Each customer can use only one scratch card per purchase.",
+    "Take a screenshot of the result.",
+    "No exchange. Scratch card result is final.",
+    "Scratch cards are non-transferable & non-exchangeable."
+  ],
+  "masterBill": "MASTER123",
+  "whatsapp": "918431270716",
+  "whatsappMessage": "Hi Life Style Shirva Team.\nI am very happy with this Scratch & Win Card.",
+  "giftRanges": [
+    {
+      "min": 1000,
+      "max": 1999,
+      "gifts": ["💰30 ₹ Cashback","💰40 ₹ Cashback","💰50 ₹ Cashback","😢 Better luck next time"]
+    },
+    {
+      "min": 2000,
+      "max": 2999,
+      "gifts": ["💰50 ₹ Cashback","💰70 ₹ Cashback","💰80 ₹ Cashback","💰90 ₹ Cashback"]
+    },
+    {
+      "min": 3000,
+      "max": 3999,
+      "gifts": ["💰70 ₹ Cashback","💰90 ₹ Cashback","💰100 ₹ Cashback","💰120 ₹ Cashback"]
+    },
+    {
+      "min": 4000,
+      "max": 4999,
+      "gifts": ["💰80 ₹ Cashback","💰100 ₹ Cashback","💰120 ₹ Cashback","💰150 ₹ Cashback"]
+    },
+    {
+      "min": 5000,
+      "max": 9999,
+      "gifts": ["💰90 ₹ Cashback","💰150 ₹ Cashback","💰200 ₹ Cashback","😢 Better luck next time"]
+    }
+  ]
+}
