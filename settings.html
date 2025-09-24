@@ -34,7 +34,7 @@
       border:none; border-radius:10px; cursor:pointer;
     }
     button:hover { background:#43a047; }
-    #status { margin-top:15px; font-weight:bold; text-align:center; }
+    #status { margin-top:15px; font-weight:bold; text-align:center; white-space:pre-wrap; }
     .range-box {
       background:#fafafa; padding:15px; margin:12px 0;
       border-radius:12px; border:1px solid #ddd;
@@ -76,7 +76,7 @@
 </div>
 
 <script>
-const GITHUB_TOKEN = "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";
+const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"; // 🔑 paste your token here
 const REPO = "lifestyleshirva/Scratchcard"; 
 const FILE_PATH = "settings.json";
 const BRANCH = "main";
@@ -118,7 +118,7 @@ function addRange(min="",max="",gifts=""){
   document.getElementById("giftRanges").appendChild(div);
 }
 
-// Save to GitHub
+// Save to GitHub (with debug)
 async function saveSettings(){
   const ranges=[];
   document.querySelectorAll(".range-box").forEach(box=>{
@@ -155,11 +155,15 @@ async function saveSettings(){
     })
   });
 
+  const statusBox = document.getElementById("status");
+
   if(result.ok){
-    document.getElementById("status").innerText="✅ Settings updated on GitHub!";
+    statusBox.innerText="✅ Settings updated on GitHub!";
     loadSettings(); 
   } else {
-    document.getElementById("status").innerText="❌ Error updating settings!";
+    const errorText = await result.text();
+    statusBox.innerText = "❌ Error updating settings!\n" + errorText;
+    console.error("GitHub API error:", errorText);
   }
 }
 
