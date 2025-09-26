@@ -19,7 +19,6 @@ body, html {
     justify-content: flex-start;
     background: #f0f0f0;
 }
-
 /* ===== Header ===== */
 header {
     background: #4CAF50;
@@ -31,7 +30,6 @@ header {
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-
 /* ===== Dashboard / First Screen ===== */
 .dashboard {
     background: white;
@@ -72,12 +70,10 @@ header {
 .message { margin-top: 10px; font-weight: bold; font-size: 0.9rem; }
 .error { color: red; }
 .success { color: green; }
-
 /* ===== PIN Screen ===== */
 #pinScreen input { width: 100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ccc; }
 #pinScreen button { width: 100%; padding:14px; margin-top:10px; border:none; color:white; background:#4CAF50; border-radius:10px; cursor:pointer; font-weight:bold; }
 #pinScreen button:hover { background:#45a049; }
-
 /* ===== First Screen Condition Box ===== */
 #firstScreenConditionBox {
     display:none;
@@ -91,7 +87,6 @@ header {
     line-height: 1.5;
 }
 #firstScreenConditionBox span { display:block; }
-
 /* ===== Terms & Conditions (First Screen Only) ===== */
 #termsAndConditions {
     width: 95%;
@@ -107,7 +102,6 @@ header {
     overflow-y: auto;
     max-height: 20vh;
 }
-
 /* ===== Second Screen ===== */
 .scratch-container {
     position: relative;
@@ -123,7 +117,6 @@ header {
     box-sizing: border-box;
     flex-shrink: 0;
 }
-
 /* Header Text */
 .header-text {
     font-size: 3rem;
@@ -138,7 +131,6 @@ header {
     0%,100%{ color:#FFD700; transform:scale(1); text-shadow:0 0 5px #FFD700; }
     50%{ color:#FF4500; transform:scale(1.1); text-shadow:0 0 10px #FF4500; }
 }
-
 /* Circle Scratch Canvas */
 #scratchCanvas {
     width: 90vw;
@@ -172,7 +164,6 @@ header {
     box-sizing:border-box;
     z-index:1;
 }
-
 #afterScratchConditionBox #winningInfo {
     font-size: 1.5rem;     
     font-weight: bold;      
@@ -180,13 +171,11 @@ header {
     text-shadow: 1px 1px 5px #FFD700; 
     margin: 15px 0;         
 }
-
 /* Footer and Lamps */
 .lamp-container { width:100%; display:flex; justify-content:space-around; margin-top:10px; }
 .lamp { width:25px; height:25px; background: radial-gradient(circle,#FFD700 60%,#FF8C00 100%); border-radius:50%; box-shadow:0 0 10px #FFD700; }
 .footer-text { text-align:center; font-size:.7rem; color:#5C4033; font-weight:bold; text-shadow:1px 1px 2px #000; margin-top:10px; }
 .blinking { animation: grandBlink .5s infinite; }
-
 /* After Scratch Condition Box */
 #afterScratchConditionBox {
     display:none;
@@ -205,7 +194,6 @@ header {
     box-sizing:border-box;
 }
 #afterScratchConditionBox span { display:block; margin:10px 0; font-size:0.9rem; }
-
 /* Celebration */
 .celebration { position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; overflow:hidden; z-index:9999; display:none; background:transparent; }
 .particle { position:absolute; font-size:1.5rem; opacity:1; animation: realisticFly 5s ease-out forwards; }
@@ -217,7 +205,6 @@ header {
 </style>
 </head>
 <body>
-
 <header>Welcome To Lifestyle Shirva!</header>
 
 <!-- PIN Screen -->
@@ -235,7 +222,6 @@ header {
     <input type="number" id="billAmt" placeholder="Enter Your Bill Amount">
     <button id="proceedBtn" onclick="proceed()">Proceed</button>
     <div id="msg" class="message"></div>
-
     <div id="firstScreenConditionBox">
         <span id="condCustName">Customer: </span>
         <span id="condBillNo">Bill Number: </span>
@@ -243,8 +229,6 @@ header {
         <span id="condCouponCode">Coupon Code: </span>
         <span id="condWinningGift">Winning Gift: </span>
     </div>
-
-    <!-- Terms & Conditions moved here -->
     <div id="termsAndConditions">
         * Scratch Card is valid only on purchases above ₹1000.<br>
         * Scratch Card is valid for 10 days only.<br>
@@ -266,7 +250,6 @@ header {
         <div class="lamp"></div><div class="lamp"></div>
     </div>
     <div class="footer-text">© 2025 Life Style Shirva 💖</div>
-
     <div id="afterScratchConditionBox">
         <h1 class="blinking">🌟💰 Congratulations! 🏆 🌟</h1>
         <span id="afterCustName">Customer: </span>
@@ -277,16 +260,12 @@ header {
         <span id="scratchDateTime">Date & Time: DD-MM-YYYY</span>
         <a href="#" id="whatsappButton" style="background:green;color:white;padding:12px 30px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">Send to WhatsApp</a>
     </div>
-
     <div class="celebration" id="celebrationContainer"></div>
 </div>
 
 <script>
 // ===== Security PIN =====
-const SECURITY_PIN = "9453"; // change this to your PIN
-
-// ===== Master Bill Number =====
-const MASTER_BILL_NUMBER = "123"; 
+const SECURITY_PIN = "9453"; 
 
 // ===== LocalStorage for used bills =====
 let usedBills = JSON.parse(localStorage.getItem('usedBills') || '[]');
@@ -312,8 +291,8 @@ function checkPin() {
     }
 }
 
-// ===== First Screen Logic =====
-function proceed() {
+// ===== First Screen Logic with Bill Validation =====
+async function proceed() {
     const name = document.getElementById('name').value.trim();
     const billNo = document.getElementById('billNo').value.trim();
     const billAmtInput = document.getElementById('billAmt').value.trim();
@@ -329,9 +308,24 @@ function proceed() {
         return; 
     }
 
+    // ✅ Bill Number JSON validation
+    try {
+        const response = await fetch("https://bill-4rh.pages.dev/bills.json");
+        const data = await response.json();
+        if(!data.validBills.includes(billNo)){
+            msg.innerHTML="❌ Bill Number not found in system!";
+            msg.classList.add("error");
+            return;
+        }
+    } catch (e) {
+        msg.innerHTML="⚠️ Error verifying Bill Number!";
+        msg.classList.add("error");
+        return;
+    }
+
     let used = usedBills.find(b=>b.billNo===billNo);
-    if(billNo !== MASTER_BILL_NUMBER && used){
-        msg.innerHTML="❌ Bill number already exists!"; 
+    if(used){
+        msg.innerHTML="❌ Bill number already used!"; 
         msg.classList.add("error");
         condBox.style.display='block';
         document.getElementById('condCustName').innerText=`Customer Name: ${used.name}`;
@@ -342,16 +336,14 @@ function proceed() {
         return;
     }
 
-    if(billAmt < 1000 && billNo !== MASTER_BILL_NUMBER){ 
+    if(billAmt < 1000){ 
         msg.innerHTML="⚠️ Scratch card not available under ₹1000"; 
         msg.classList.add("error"); 
         return; 
     }
 
-    if(billNo !== MASTER_BILL_NUMBER){
-        usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); 
-        saveUsedBills();
-    }
+    usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); 
+    saveUsedBills();
 
     msg.innerHTML=`✅ Hello ${name}, your bill is accepted!`; 
     msg.classList.add("success");
@@ -363,14 +355,10 @@ function proceed() {
     document.getElementById('condCouponCode').innerText=`Coupon Code: -`;
     document.getElementById('condWinningGift').innerText=`Winning Gift: -`;
 
-    if(billNo !== MASTER_BILL_NUMBER && billAmt >= 1000){
+    if(billAmt >= 1000){
         document.getElementById('firstScreen').style.display="none";
         document.getElementById('secondScreen').style.display="flex";
-
-        // mark visited for PIN
         localStorage.setItem("visitedOnce", "true");
-
-        // Immediately show offer behind scratch canvas
         const gifts = ['🎁 Surprise Gift','💰 Cashback Offer'];
         const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
         const offerDiv = document.getElementById('offer');
@@ -416,7 +404,7 @@ I am very happy with this Scratch & Win Card.\n\nCustomer Name: ${name}\nBill No
 function startCelebrationAndAfterBox(){
     const billAmt = parseFloat(document.getElementById('billAmt').value.trim());
     let gifts=[];
-    if(billAmt>=1000 && billAmt<1500 || document.getElementById('billNo').value.trim() === MASTER_BILL_NUMBER) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];
+    if(billAmt>=1000 && billAmt<1500) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];
     else if(billAmt>=1500 && billAmt<2000) gifts=['💰20 ₹ Cashback','💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];
     else if(billAmt>=2000 && billAmt<2500) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback','💰60 ₹ Cashback'];
     else if(billAmt>=2500 && billAmt<3000) gifts=['💰40 ₹ Cashback','💰50 ₹ Cashback','💰70 ₹ Cashback','💰80 ₹ Cashback'];
@@ -431,12 +419,10 @@ function startCelebrationAndAfterBox(){
 
 function revealFull(randomGift){
     revealed=true; ctx.clearRect(0,0,canvas.width,canvas.height); offer.innerText=randomGift; offer.style.display='flex';
-
     setTimeout(()=>{
         const name = document.getElementById('name').value.trim();
         const billNo = document.getElementById('billNo').value.trim();
         const billAmt = document.getElementById('billAmt').value.trim();
-
         if(randomGift!=='😢 Better luck next time'){
             const code=generateCouponCode(); 
             const dateTime=getCurrentDateTime();
@@ -448,7 +434,6 @@ function revealFull(randomGift){
             document.getElementById('scratchDateTime').innerText=`Date & Time: ${dateTime}`;
             document.getElementById('afterScratchConditionBox').style.display='block';
             updateWhatsAppButton(randomGift,code,dateTime);
-
             const used = usedBills.find(b=>b.billNo===billNo);
             if(used){ 
                 used.gift=randomGift; 
@@ -457,7 +442,6 @@ function revealFull(randomGift){
                 document.getElementById('condCouponCode').innerText=`Coupon Code: ${code}`;
                 document.getElementById('condWinningGift').innerText=`Winning Gift: ${randomGift}`;
             }
-
             const celebrationContainer=document.getElementById('celebrationContainer'); 
             celebrationContainer.innerHTML='';
             const particles=['🌸','✨','🎉','💥','🌟','💫','🌟','✨','⚡'];
@@ -477,7 +461,6 @@ function revealFull(randomGift){
         } else { offer.innerText='😢 Better luck next time.'; } 
     },1000);
 }
-
 // Initialize scratch overlay
 ctx.fillStyle='silver'; 
 ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -485,7 +468,6 @@ ctx.font='bold 18px Arial';
 ctx.fillStyle='black'; 
 ctx.textAlign='center';
 ctx.fillText('SCRATCH HERE 🎉',canvas.width/2,canvas.height/2);
-
 canvas.addEventListener('pointerdown', startScratch); 
 canvas.addEventListener('pointermove', performScratch);
 canvas.addEventListener('pointerup', endScratch); 
