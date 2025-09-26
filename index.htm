@@ -19,7 +19,6 @@ body, html {
     justify-content: flex-start;
     background: #f0f0f0;
 }
-/* ===== Header ===== */
 header {
     background: #4CAF50;
     color: white;
@@ -30,7 +29,6 @@ header {
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-/* ===== Dashboard / First Screen ===== */
 .dashboard {
     background: white;
     padding: 15px;
@@ -50,10 +48,6 @@ header {
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
-.dashboard input:focus {
-    border: 1px solid #4CAF50;
-    box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
-}
 .dashboard button {
     width: 100%;
     padding: 14px;
@@ -66,11 +60,9 @@ header {
     cursor: pointer;
     font-weight: bold;
 }
-.dashboard button:hover { background: #45a049; }
 .message { margin-top: 10px; font-weight: bold; font-size: 0.9rem; }
 .error { color: red; }
 .success { color: green; }
-/* ===== First Screen Condition Box ===== */
 #firstScreenConditionBox {
     display:none;
     margin-top: 15px;
@@ -80,10 +72,7 @@ header {
     border-radius: 12px;
     font-size: 0.9rem;
     text-align: left;
-    line-height: 1.5;
 }
-#firstScreenConditionBox span { display:block; }
-/* ===== Terms & Conditions ===== */
 #termsAndConditions {
     width: 95%;
     max-width: 360px;
@@ -95,10 +84,7 @@ header {
     font-size: 0.8rem;
     line-height: 1.4;
     color: #333;
-    overflow-y: auto;
-    max-height: 20vh;
 }
-/* ===== Second Screen ===== */
 .scratch-container {
     position: relative;
     width: 100%;
@@ -108,33 +94,24 @@ header {
     display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
     padding: 15px;
-    box-sizing: border-box;
-    flex-shrink: 0;
 }
 .header-text {
     font-size: 3rem;
     font-weight: bold;
     color: #FFD700;
-    text-align: center;
     text-shadow: 1px 1px 3px #000;
     animation: grandBlink .5s infinite;
-    margin-bottom: 10px;
 }
 @keyframes grandBlink {
-    0%,100%{ color:#FFD700; transform:scale(1); text-shadow:0 0 5px #FFD700; }
-    50%{ color:#FF4500; transform:scale(1.1); text-shadow:0 0 10px #FF4500; }
+    0%,100%{ color:#FFD700; }
+    50%{ color:#FF4500; }
 }
 #scratchCanvas {
     width: 90vw;
     max-width: 320px;
     aspect-ratio: 1/1;
     border-radius: 50%;
-    display: block;
-    touch-action: none;
-    position: relative;
-    z-index: 2;
 }
 #offer {
     position:absolute;
@@ -152,45 +129,22 @@ header {
     border-radius:50%;
     font-weight:bold;
     font-size:3rem;
-    color:#333;
-    padding:10px;
-    box-sizing:border-box;
     z-index:1;
 }
-#afterScratchConditionBox #winningInfo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #FF4500;
-    text-shadow: 1px 1px 5px #FFD700;
-    margin: 15px 0;
-}
-.lamp-container { width:100%; display:flex; justify-content:space-around; margin-top:10px; }
-.lamp { width:25px; height:25px; background: radial-gradient(circle,#FFD700 60%,#FF8C00 100%); border-radius:50%; box-shadow:0 0 10px #FFD700; }
-.footer-text { text-align:center; font-size:.7rem; color:#5C4033; font-weight:bold; text-shadow:1px 1px 2px #000; margin-top:10px; }
-.blinking { animation: grandBlink .5s infinite; }
 #afterScratchConditionBox {
     display:none;
     position:fixed;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
-    padding:25px;
+    padding:20px;
     background:#fff;
-    border:4px solid #FFD700;
-    border-radius:15px;
+    border:3px solid #FFD700;
+    border-radius:12px;
     text-align:center;
     z-index:9999;
     width:90%;
     max-width:350px;
-    box-sizing:border-box;
-}
-#afterScratchConditionBox span { display:block; margin:10px 0; font-size:0.9rem; }
-.celebration { position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; overflow:hidden; z-index:9999; display:none; background:transparent; }
-.particle { position:absolute; font-size:1.5rem; opacity:1; animation: realisticFly 5s ease-out forwards; }
-@keyframes realisticFly {
-    0% {transform:translate(0,0) scale(1);opacity:1;}
-    50% {transform:translate(var(--x),var(--y)) scale(1.3);opacity:0.8;}
-    100% {transform:translate(calc(var(--x)*1.5),calc(var(--y)*1.5)) scale(1.6);opacity:0;}
 }
 </style>
 </head>
@@ -205,20 +159,12 @@ header {
     <input type="text" id="custName" placeholder="Customer Name" readonly>
     <button id="proceedBtn" onclick="proceed()">Proceed</button>
     <div id="msg" class="message"></div>
-
     <div id="firstScreenConditionBox">
-        <span id="condCustName">Customer: </span>
-        <span id="condBillNo">Bill Number: </span>
-        <span id="condBillAmt">Bill Amount: </span>
-        <span id="condCouponCode">Coupon Code: </span>
-        <span id="condWinningGift">Winning Gift: </span>
-    </div>
-    <div id="termsAndConditions">
-        * Scratch Card valid only on purchases above ₹1000.<br>
-        * Valid for 10 days only.<br>
-        * Each customer can use only one scratch card.<br>
-        * Take a screenshot of the result.<br>
-        * Scratch cards are non-transferable.
+        <span id="condCustName"></span>
+        <span id="condBillNo"></span>
+        <span id="condBillAmt"></span>
+        <span id="condCouponCode"></span>
+        <span id="condWinningGift"></span>
     </div>
 </div>
 
@@ -229,20 +175,17 @@ header {
         <canvas id="scratchCanvas" width="300" height="300"></canvas>
         <div id="offer"></div>
     </div>
-    <div class="lamp-container"><div class="lamp"></div><div class="lamp"></div></div>
     <div class="footer-text">© 2025 Life Style Shirva 💖</div>
-
     <div id="afterScratchConditionBox">
-        <h1 class="blinking">🌟💰 Congratulations! 🏆 🌟</h1>
-        <span id="afterCustName">Customer: </span>
-        <span id="afterBillNo">Bill Number: </span>
-        <span id="afterBillAmt">Bill Amount: </span>
-        <span id="winningInfo">You Won: XXXXXXX</span>
-        <span id="couponCodeInfo">Code: ABCD-XXXX-XXXX</span>
-        <span id="scratchDateTime">Date & Time: DD-MM-YYYY</span>
-        <a href="#" id="whatsappButton" style="background:green;color:white;padding:12px 30px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">Send to WhatsApp</a>
+        <h1>🌟 Congratulations! 🌟</h1>
+        <span id="afterCustName"></span>
+        <span id="afterBillNo"></span>
+        <span id="afterBillAmt"></span>
+        <span id="winningInfo"></span>
+        <span id="couponCodeInfo"></span>
+        <span id="scratchDateTime"></span>
+        <a href="#" id="whatsappButton">Send to WhatsApp</a>
     </div>
-    <div class="celebration" id="celebrationContainer"></div>
 </div>
 
 <script>
@@ -250,77 +193,73 @@ let usedBills = JSON.parse(localStorage.getItem('usedBills') || '[]');
 function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedBills)); }
 let currentBill = null;
 
-// Fetch bill data from JSON
+// Fetch bill data
 async function fetchBillData(){
-    const billNo = document.getElementById('billNo').value.trim();
-    const msg = document.getElementById('msg');
-    msg.className="message"; msg.innerText="";
+    const billNo=document.getElementById('billNo').value.trim();
     if(!billNo) return;
     try{
-        const res = await fetch("https://bill-4rh.pages.dev/bills.json",{cache:"no-store"});
-        const data = await res.json();
-        let billsArr = data.bills || [];
-        const found = billsArr.find(b=>b.billNo===billNo);
-        if(!found){ msg.innerHTML="❌ Bill not found!"; msg.classList.add("error"); currentBill=null; return; }
-        document.getElementById('billAmt').value = found.payable || found.amount || "";
-        document.getElementById('mobile').value = found.mobile || "";
-        document.getElementById('custName').value = found.name || "";
-        msg.innerHTML="✅ Bill Found!"; msg.classList.add("success");
+        const res=await fetch("https://bill-4rh.pages.dev/bills.json",{cache:"no-store"});
+        const data=await res.json();
+        const found=(data.bills||[]).find(b=>b.billNo===billNo);
+        if(!found){ document.getElementById('msg').innerText="❌ Bill not found"; currentBill=null; return; }
+        document.getElementById('billAmt').value=found.payable||found.amount||"";
+        document.getElementById('mobile').value=found.mobile||"";
+        document.getElementById('custName').value=found.name||"";
         currentBill=found;
-    }catch(e){ msg.innerHTML="⚠️ Error fetching data"; msg.classList.add("error"); }
+    }catch(e){ document.getElementById('msg').innerText="⚠️ Error loading"; }
 }
 
 // Proceed button
 function proceed(){
-    const msg = document.getElementById('msg');
-    msg.className="message"; msg.innerText="";
-    if(!currentBill){ msg.innerHTML="⚠️ Enter valid Bill No"; msg.classList.add("error"); return; }
-
-    let used = usedBills.find(b=>b.billNo===currentBill.billNo);
+    const msg=document.getElementById('msg');
+    msg.innerText="";
+    if(!currentBill){ msg.innerText="⚠️ Invalid Bill"; return; }
+    let used=usedBills.find(b=>b.billNo===currentBill.billNo);
     if(used){
-        msg.innerHTML="❌ Already used!"; 
-        msg.classList.add("error");
-
-        // Show old win details
-        const condBox = document.getElementById('firstScreenConditionBox');
-        condBox.style.display='block';
+        msg.innerText="❌ Already used!";
+        const box=document.getElementById('firstScreenConditionBox');
+        box.style.display='block';
         document.getElementById('condCustName').innerText=`Customer: ${used.name}`;
-        document.getElementById('condBillNo').innerText=`Bill Number: ${used.billNo}`;
-        document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${used.billAmt}`;
-        document.getElementById('condCouponCode').innerText=`Coupon Code: ${used.coupon || '-'}`;
-        document.getElementById('condWinningGift').innerText=`Winning Gift: ${used.gift || '-'}`;
+        document.getElementById('condBillNo').innerText=`Bill: ${used.billNo}`;
+        document.getElementById('condBillAmt').innerText=`Amount: ₹${used.billAmt}`;
+        document.getElementById('condCouponCode').innerText=`Coupon: ${used.coupon}`;
+        document.getElementById('condWinningGift').innerText=`Prize: ${used.gift}`;
         return;
     }
-
-    const payVal = parseFloat((currentBill.payable||currentBill.amount||"0").toString().replace(/,/g,''))||0;
-    if(payVal<1000){ msg.innerHTML="⚠️ Scratch not available under ₹1000"; msg.classList.add("error"); return; }
-
-    usedBills.push({billNo:currentBill.billNo,name:currentBill.name,billAmt:currentBill.payable||currentBill.amount,gift:null,coupon:null}); 
-    saveUsedBills();
-
+    const pay=parseFloat(currentBill.payable||currentBill.amount||"0");
+    if(pay<1000){ msg.innerText="⚠️ Scratch not available"; return; }
     document.getElementById('firstScreen').style.display="none";
     document.getElementById('secondScreen').style.display="flex";
-
-    const gifts=['🎁 Surprise Gift','💰 Cashback Offer']; 
-    const randomGift=gifts[Math.floor(Math.random()*gifts.length)];
-    document.getElementById('offer').innerText=randomGift;
 }
 
 // Scratch logic
-const canvas=document.getElementById('scratchCanvas'); const ctx=canvas.getContext('2d'); const offer=document.getElementById('offer');
-let isDrawing=false,scratchActions=0,revealed=false;
-function getPointerPos(e){const r=canvas.getBoundingClientRect();return{x:(e.touches?e.touches[0].clientX:e.clientX)-r.left,y:(e.touches?e.touches[0].clientY:e.clientY)-r.top};}
-function scratch(e){const p=getPointerPos(e);ctx.globalCompositeOperation='destination-out';ctx.beginPath();ctx.arc(p.x,p.y,20,0,Math.PI*2);ctx.fill();}
-function startScratch(e){if(revealed)return;isDrawing=true;}
-function performScratch(e){if(!isDrawing||revealed)return;scratch(e);}
-function endScratch(e){if(!revealed&&isDrawing){scratchActions++;if(scratchActions>=1){startCelebrationAndAfterBox();}}isDrawing=false;}
-function generateCouponCode(){return'LS-'+Math.random().toString(36).substring(2,10).toUpperCase();}
+const canvas=document.getElementById('scratchCanvas');const ctx=canvas.getContext('2d');const offer=document.getElementById('offer');
+let isDrawing=false,revealed=false;
+function scratch(e){const r=canvas.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.globalCompositeOperation='destination-out';ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);ctx.fill();}
+canvas.addEventListener('pointerdown',()=>isDrawing=true);
+canvas.addEventListener('pointermove',e=>{if(isDrawing&&!revealed)scratch(e)});
+canvas.addEventListener('pointerup',()=>{if(!revealed){revealFull();}isDrawing=false;});
+
+function generateCouponCode(){return 'LS-'+Math.random().toString(36).substring(2,8).toUpperCase();}
 function getCurrentDateTime(){return new Date().toLocaleString();}
-function updateWhatsAppButton(randomGift,code,dt){const n=document.getElementById('custName').value.trim();const b=document.getElementById('billNo').value.trim();const a=document.getElementById('billAmt').value.trim();const msg=`Hi Life Style Shirva Team.\nCustomer: ${n}\nBill No: ${b}\nAmount: ₹${a}\nPrize: ${randomGift}\nCode: ${code}\nDate: ${dt}`;document.getElementById('whatsappButton').href=`https://wa.me/918431270716?text=${encodeURIComponent(msg)}`;}
-function startCelebrationAndAfterBox(){const a=parseFloat(document.getElementById('billAmt').value)||0;let gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];const g=gifts[Math.floor(Math.random()*gifts.length)];revealFull(g);}
-function revealFull(g){revealed=true;ctx.clearRect(0,0,canvas.width,canvas.height);offer.innerText=g;offer.style.display='flex';setTimeout(()=>{const n=document.getElementById('custName').value.trim();const b=document.getElementById('billNo').value.trim();const a=document.getElementById('billAmt').value.trim();const c=generateCouponCode();const dt=getCurrentDateTime();document.getElementById('afterCustName').innerText=`Customer: ${n}`;document.getElementById('afterBillNo').innerText=`Bill Number: ${b}`;document.getElementById('afterBillAmt').innerText=`Bill Amount: ₹${a}`;document.getElementById('winningInfo').innerText=`You Won: ${g}`;document.getElementById('couponCodeInfo').innerText=`Code: ${c}`;document.getElementById('scratchDateTime').innerText=`Date: ${dt}`;document.getElementById('afterScratchConditionBox').style.display='block';updateWhatsAppButton(g,c,dt);const used=usedBills.find(bill=>bill.billNo===b);if(used){used.gift=g;used.coupon=c;saveUsedBills();document.getElementById('condCouponCode').innerText=`Coupon Code: ${c}`;document.getElementById('condWinningGift').innerText=`Winning Gift: ${g}`;}},1000);}
+function updateWhatsAppButton(g,c,dt){const n=document.getElementById('custName').value;const b=currentBill.billNo;const a=document.getElementById('billAmt').value;const msg=`Hi,\nCustomer: ${n}\nBill: ${b}\nAmount: ₹${a}\nPrize: ${g}\nCode: ${c}\nDate: ${dt}`;document.getElementById('whatsappButton').href=`https://wa.me/918431270716?text=${encodeURIComponent(msg)}`;}
+
+function revealFull(){
+    revealed=true;ctx.clearRect(0,0,canvas.width,canvas.height);
+    const gifts=['💰50 ₹ Cashback','🎁 Gift Item','💰100 ₹ Cashback'];const g=gifts[Math.floor(Math.random()*gifts.length)];
+    offer.innerText=g;
+    const c=generateCouponCode();const dt=getCurrentDateTime();
+    document.getElementById('afterCustName').innerText=`Customer: ${currentBill.name}`;
+    document.getElementById('afterBillNo').innerText=`Bill: ${currentBill.billNo}`;
+    document.getElementById('afterBillAmt').innerText=`Amount: ₹${currentBill.payable||currentBill.amount}`;
+    document.getElementById('winningInfo').innerText=`You Won: ${g}`;
+    document.getElementById('couponCodeInfo').innerText=`Coupon: ${c}`;
+    document.getElementById('scratchDateTime').innerText=`Date: ${dt}`;
+    document.getElementById('afterScratchConditionBox').style.display='block';
+    updateWhatsAppButton(g,c,dt);
+    usedBills.push({billNo:currentBill.billNo,name:currentBill.name,billAmt:currentBill.payable||currentBill.amount,gift:g,coupon:c});saveUsedBills();
+}
 ctx.fillStyle='silver';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.font='bold 18px Arial';ctx.fillStyle='black';ctx.textAlign='center';ctx.fillText('SCRATCH HERE 🎉',canvas.width/2,canvas.height/2);
-canvas.addEventListener('pointerdown',startScratch);canvas.addEventListener('pointermove',performScratch);canvas.addEventListener('pointerup',endScratch);
 </script>
 </body>
 </html>
