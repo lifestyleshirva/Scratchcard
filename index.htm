@@ -70,10 +70,6 @@ header {
 .message { margin-top: 10px; font-weight: bold; font-size: 0.9rem; }
 .error { color: red; }
 .success { color: green; }
-/* ===== PIN Screen ===== */
-#pinScreen input { width: 100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ccc; }
-#pinScreen button { width: 100%; padding:14px; margin-top:10px; border:none; color:white; background:#4CAF50; border-radius:10px; cursor:pointer; font-weight:bold; }
-#pinScreen button:hover { background:#45a049; }
 /* ===== First Screen Condition Box ===== */
 #firstScreenConditionBox {
     display:none;
@@ -207,19 +203,12 @@ header {
 <body>
 <header>Welcome To Lifestyle Shirva!</header>
 
-<!-- PIN Screen -->
-<div class="dashboard" id="pinScreen" style="display:none;">
-    <h3>Enter Security PIN</h3>
-    <input type="password" id="pinInput" placeholder="Enter PIN">
-    <button onclick="checkPin()">Submit</button>
-    <div id="pinMsg" class="message"></div>
-</div>
-
 <!-- First Screen -->
 <div class="dashboard" id="firstScreen">
     <input type="text" id="name" placeholder="Enter Your Name">
     <input type="text" id="billNo" placeholder="Enter Your Bill Number">
     <input type="number" id="billAmt" placeholder="Enter Your Bill Amount">
+    <div id="mobileDisplay" style="font-size:0.9rem;color:#333;display:none;"></div>
     <button id="proceedBtn" onclick="proceed()">Proceed</button>
     <div id="msg" class="message"></div>
     <div id="firstScreenConditionBox">
@@ -264,106 +253,89 @@ header {
 </div>
 
 <script>
-// ===== Security PIN =====
-const SECURITY_PIN = "9453"; 
-
 // ===== LocalStorage for used bills =====
 let usedBills = JSON.parse(localStorage.getItem('usedBills') || '[]');
 function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedBills)); }
-
-// ===== Check PIN on page load =====
-window.onload = function() {
-    if(localStorage.getItem("visitedOnce")) {
-        document.getElementById("firstScreen").style.display = "none";
-        document.getElementById("pinScreen").style.display = "block";
-    }
-};
-
-// ===== PIN Check =====
-function checkPin() {
-    const pin = document.getElementById("pinInput").value;
-    if(pin === SECURITY_PIN){
-        document.getElementById("pinScreen").style.display = "none";
-        document.getElementById("firstScreen").style.display = "block";
-    } else {
-        document.getElementById("pinMsg").innerText = "❌ Wrong PIN. Try again.";
-        document.getElementById("pinMsg").classList.add("error");
-    }
-}
 
 // ===== First Screen Logic with Bill Validation =====
 async function proceed() {
     const name = document.getElementById('name').value.trim();
     const billNo = document.getElementById('billNo').value.trim();
-    const billAmtInput = document.getElementById('billAmt').value.trim();
-    const billAmt = parseFloat(billAmtInput);
     const msg = document.getElementById('msg');
     const condBox = document.getElementById('firstScreenConditionBox');
     msg.innerHTML = ""; 
     msg.className="message";
 
-    if(!name || !billNo || !billAmtInput || isNaN(billAmt)){ 
-        msg.innerHTML="⚠️ Fill all fields!"; 
+    if(!name || !billNo){ 
+        msg.innerHTML="⚠️ Enter Name & Bill Number"; 
         msg.classList.add("error"); 
         return; 
     }
 
-    // ✅ Bill Number JSON validation
+    // ✅ Fetch JSON
     try {
         const response = await fetch("https://bill-4rh.pages.dev/bills.json");
         const data = await response.json();
-        if(!data.validBills.includes(billNo)){
-            msg.innerHTML="❌ Bill Number not found in system!";
+        const found = data.bills.find(b=>b.billNo === billNo);
+
+        if(!found){
+            msg.innerHTML="❌ Bill Number not found!";
             msg.classList.add("error");
             return;
         }
-    } catch (e) {
-        msg.innerHTML="⚠️ Error verifying Bill Number!";
-        msg.classList.add("error");
-        return;
-    }
 
-    let used = usedBills.find(b=>b.billNo===billNo);
-    if(used){
-        msg.innerHTML="❌ Bill number already used!"; 
-        msg.classList.add("error");
+        // auto-fill billAmt & show mobile if available
+        document.getElementById('billAmt').value = found.payable;
+        if(found.mobile){
+            const mobBox=document.getElementById('mobileDisplay');
+            mobBox.style.display="block";
+            mobBox.innerText="Mobile: "+found.mobile;
+        }
+
+        let used = usedBills.find(b=>b.billNo===billNo);
+        if(used){
+            msg.innerHTML="❌ Bill already used!"; 
+            msg.classList.add("error");
+            condBox.style.display='block';
+            document.getElementById('condCustName').innerText=`Customer Name: ${used.name}`;
+            document.getElementById('condBillNo').innerText=`Bill Number: ${used.billNo}`;
+            document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${used.billAmt}`;
+            document.getElementById('condCouponCode').innerText=`Coupon Code: ${used.coupon || '-'}`;
+            document.getElementById('condWinningGift').innerText=`Winning Gift: ${used.gift || '-'}`;
+            return;
+        }
+
+        if(parseFloat(found.payable) < 1000){ 
+            msg.innerHTML="⚠️ Scratch card not available under ₹1000"; 
+            msg.classList.add("error"); 
+            return; 
+        }
+
+        usedBills.push({billNo,name,billAmt:found.payable,gift:null,coupon:null}); 
+        saveUsedBills();
+
+        msg.innerHTML=`✅ Hello ${name}, your bill is accepted!`; 
+        msg.classList.add("success");
+
         condBox.style.display='block';
-        document.getElementById('condCustName').innerText=`Customer Name: ${used.name}`;
-        document.getElementById('condBillNo').innerText=`Bill Number: ${used.billNo}`;
-        document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${used.billAmt}`;
-        document.getElementById('condCouponCode').innerText=`Coupon Code: ${used.coupon || '-'}`;
-        document.getElementById('condWinningGift').innerText=`Winning Gift: ${used.gift || '-'}`;
-        return;
-    }
+        document.getElementById('condCustName').innerText=`Customer Name: ${name}`;
+        document.getElementById('condBillNo').innerText=`Bill Number: ${billNo}`;
+        document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${found.payable}`;
+        document.getElementById('condCouponCode').innerText=`Coupon Code: -`;
+        document.getElementById('condWinningGift').innerText=`Winning Gift: -`;
 
-    if(billAmt < 1000){ 
-        msg.innerHTML="⚠️ Scratch card not available under ₹1000"; 
-        msg.classList.add("error"); 
-        return; 
-    }
-
-    usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); 
-    saveUsedBills();
-
-    msg.innerHTML=`✅ Hello ${name}, your bill is accepted!`; 
-    msg.classList.add("success");
-
-    condBox.style.display='block';
-    document.getElementById('condCustName').innerText=`Customer Name: ${name}`;
-    document.getElementById('condBillNo').innerText=`Bill Number: ${billNo}`;
-    document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${billAmt}`;
-    document.getElementById('condCouponCode').innerText=`Coupon Code: -`;
-    document.getElementById('condWinningGift').innerText=`Winning Gift: -`;
-
-    if(billAmt >= 1000){
         document.getElementById('firstScreen').style.display="none";
         document.getElementById('secondScreen').style.display="flex";
-        localStorage.setItem("visitedOnce", "true");
+
         const gifts = ['🎁 Surprise Gift','💰 Cashback Offer'];
         const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
         const offerDiv = document.getElementById('offer');
         offerDiv.innerText = randomGift;
         offerDiv.style.display = 'flex';
+
+    } catch (e) {
+        msg.innerHTML="⚠️ Error verifying Bill Number!";
+        msg.classList.add("error");
     }
 }
 
@@ -461,6 +433,7 @@ function revealFull(randomGift){
         } else { offer.innerText='😢 Better luck next time.'; } 
     },1000);
 }
+
 // Initialize scratch overlay
 ctx.fillStyle='silver'; 
 ctx.fillRect(0,0,canvas.width,canvas.height);
