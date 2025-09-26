@@ -259,7 +259,8 @@ function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedB
 
 // ===== First Screen Logic with Bill Validation =====
 async function proceed() {
-    const name = document.getElementById('name').value.trim();
+    const nameField = document.getElementById('name');
+    const name = nameField.value.trim();
     const billNo = document.getElementById('billNo').value.trim();
     const msg = document.getElementById('msg');
     const condBox = document.getElementById('firstScreenConditionBox');
@@ -274,9 +275,12 @@ async function proceed() {
 
     // ✅ Fetch JSON
     try {
-        const response = await fetch("https://bill-4rh.pages.dev/bills.json");
+        const response = await fetch("https://bill-4rh.pages.dev/bills.json", {cache: "no-store"});
         const data = await response.json();
-        const found = data.bills.find(b=>b.billNo === billNo);
+
+        // support both new (bills) and legacy (validBills) structures
+        const billsArr = data.bills || (data.validBills ? data.validBills.map(b=>({billNo:b})) : []);
+        const found = billsArr.find(b=>b.billNo === billNo);
 
         if(!found){
             msg.innerHTML="❌ Bill Number not found!";
@@ -284,14 +288,25 @@ async function proceed() {
             return;
         }
 
-        // auto-fill billAmt & show mobile if available
-        document.getElementById('billAmt').value = found.payable;
+        // if the JSON record has only billNo (legacy), try fetch full record again (best-effort)
+        // auto-fill billAmt & show mobile if available (support payable or amount key)
+        const payable = found.payable || found.amount || found.payableAmount || found.amountValue || "";
+        if(payable) document.getElementById('billAmt').value = payable;
+
+        if(found.name){
+            nameField.value = found.name; // auto-fill name if present in JSON
+        }
+
         if(found.mobile){
             const mobBox=document.getElementById('mobileDisplay');
             mobBox.style.display="block";
             mobBox.innerText="Mobile: "+found.mobile;
+        } else {
+            // hide mobile display when not available
+            document.getElementById('mobileDisplay').style.display = "none";
         }
 
+        // check used
         let used = usedBills.find(b=>b.billNo===billNo);
         if(used){
             msg.innerHTML="❌ Bill already used!"; 
@@ -305,13 +320,16 @@ async function proceed() {
             return;
         }
 
-        if(parseFloat(found.payable) < 1000){ 
+        // ensure payable numeric and check min amount
+        const payVal = parseFloat((payable || document.getElementById('billAmt').value || "0").toString().replace(/,/g,''));
+        if(payVal < 1000){
             msg.innerHTML="⚠️ Scratch card not available under ₹1000"; 
-            msg.classList.add("error"); 
-            return; 
+            msg.classList.add("error");
+            return;
         }
 
-        usedBills.push({billNo,name,billAmt:found.payable,gift:null,coupon:null}); 
+        // add to used list and proceed
+        usedBills.push({billNo,name,billAmt: (payable || document.getElementById('billAmt').value), gift:null,coupon:null}); 
         saveUsedBills();
 
         msg.innerHTML=`✅ Hello ${name}, your bill is accepted!`; 
@@ -320,10 +338,11 @@ async function proceed() {
         condBox.style.display='block';
         document.getElementById('condCustName').innerText=`Customer Name: ${name}`;
         document.getElementById('condBillNo').innerText=`Bill Number: ${billNo}`;
-        document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${found.payable}`;
+        document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${payable || document.getElementById('billAmt').value}`;
         document.getElementById('condCouponCode').innerText=`Coupon Code: -`;
         document.getElementById('condWinningGift').innerText=`Winning Gift: -`;
 
+        // show scratch screen
         document.getElementById('firstScreen').style.display="none";
         document.getElementById('secondScreen').style.display="flex";
 
@@ -334,18 +353,19 @@ async function proceed() {
         offerDiv.style.display = 'flex';
 
     } catch (e) {
+        console.error(e);
         msg.innerHTML="⚠️ Error verifying Bill Number!";
         msg.classList.add("error");
     }
 }
 
-// ===== Scratch Logic =====
+// ===== Scratch Logic (unchanged) =====
 const canvas = document.getElementById('scratchCanvas');
 const ctx = canvas.getContext('2d');
 const offer = document.getElementById('offer');
 let isDrawing=false, scratchActions=0, revealed=false;
 
-function getPointerPos(e){ const rect=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y:(e.touches?e.touches[0].clientY:e.clientY)-rect.top}; }
+function getPointerPos(e){ const rect=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y:(e.touches?e.touches[0].clientY:e.touches[0].clientY)-rect.top}; }
 function scratch(e){ const pos=getPointerPos(e); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(pos.x,pos.y,20,0,Math.PI*2); ctx.fill(); }
 function startScratch(e){ if(revealed) return; isDrawing=true; }
 function performScratch(e){ if(!isDrawing || revealed) return; scratch(e); }
