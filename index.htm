@@ -19,7 +19,6 @@ body, html {
     justify-content: flex-start;
     background: #f0f0f0;
 }
-
 /* ===== Header ===== */
 header {
     background: #4CAF50;
@@ -31,7 +30,6 @@ header {
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-
 /* ===== Dashboard / First Screen ===== */
 .dashboard {
     background: white;
@@ -72,7 +70,6 @@ header {
 .message { margin-top: 10px; font-weight: bold; font-size: 0.9rem; }
 .error { color: red; }
 .success { color: green; }
-
 /* ===== First Screen Condition Box ===== */
 #firstScreenConditionBox {
     display:none;
@@ -86,7 +83,6 @@ header {
     line-height: 1.5;
 }
 #firstScreenConditionBox span { display:block; }
-
 /* ===== Terms & Conditions (First Screen Only) ===== */
 #termsAndConditions {
     width: 95%;
@@ -102,7 +98,6 @@ header {
     overflow-y: auto;
     max-height: 20vh;
 }
-
 /* ===== Second Screen ===== */
 .scratch-container {
     position: relative;
@@ -118,7 +113,6 @@ header {
     box-sizing: border-box;
     flex-shrink: 0;
 }
-
 /* Header Text */
 .header-text {
     font-size: 3rem;
@@ -133,7 +127,6 @@ header {
     0%,100%{ color:#FFD700; transform:scale(1); text-shadow:0 0 5px #FFD700; }
     50%{ color:#FF4500; transform:scale(1.1); text-shadow:0 0 10px #FF4500; }
 }
-
 /* Circle Scratch Canvas */
 #scratchCanvas {
     width: 90vw;
@@ -167,7 +160,6 @@ header {
     box-sizing:border-box;
     z-index:1;
 }
-
 #afterScratchConditionBox #winningInfo {
     font-size: 1.5rem;     
     font-weight: bold;      
@@ -175,13 +167,11 @@ header {
     text-shadow: 1px 1px 5px #FFD700; 
     margin: 15px 0;         
 }
-
 /* Footer and Lamps */
 .lamp-container { width:100%; display:flex; justify-content:space-around; margin-top:10px; }
 .lamp { width:25px; height:25px; background: radial-gradient(circle,#FFD700 60%,#FF8C00 100%); border-radius:50%; box-shadow:0 0 10px #FFD700; }
 .footer-text { text-align:center; font-size:.7rem; color:#5C4033; font-weight:bold; text-shadow:1px 1px 2px #000; margin-top:10px; }
 .blinking { animation: grandBlink .5s infinite; }
-
 /* After Scratch Condition Box */
 #afterScratchConditionBox {
     display:none;
@@ -200,7 +190,6 @@ header {
     box-sizing:border-box;
 }
 #afterScratchConditionBox span { display:block; margin:10px 0; font-size:0.9rem; }
-
 /* Celebration */
 .celebration { position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; overflow:hidden; z-index:9999; display:none; background:transparent; }
 .particle { position:absolute; font-size:1.5rem; opacity:1; animation: realisticFly 5s ease-out forwards; }
@@ -217,10 +206,16 @@ header {
 
 <!-- First Screen -->
 <div class="dashboard" id="firstScreen">
+    <!-- BillNo + Load Button row -->
     <div style="display:flex; gap:5px;">
-      <input type="text" id="billNo" placeholder="Enter Your Bill Number" style="flex:1;">
-      <button onclick="loadDetails()" style="white-space:nowrap;">Load Details</button>
+      <input type="text" id="billNo" placeholder="Enter Your Bill Number" 
+             style="flex:1; padding:12px; font-size:1rem; border-radius:10px; border:1px solid #ccc; box-sizing:border-box;">
+      <button onclick="loadDetails()" 
+              style="padding:12px 16px; font-size:1rem; border-radius:10px; border:none; background:#4CAF50; color:white; font-weight:bold; cursor:pointer;">
+          Load
+      </button>
     </div>
+
     <input type="text" id="name" placeholder="Customer Name" readonly>
     <input type="text" id="mobile" placeholder="Mobile Number" readonly>
     <input type="text" id="billAmt" placeholder="Bill Amount" readonly>
@@ -286,43 +281,33 @@ async function getCustomerData(billNo){
 
 let currentCustomer = null;
 
-// ===== Load Details Button =====
 async function loadDetails(){
     const billNo = document.getElementById('billNo').value.trim();
     const msg = document.getElementById('msg');
     msg.innerHTML=""; msg.className="message";
 
-    if(!billNo){
-        msg.innerHTML="⚠️ Bill Number ಬೇಕು!";
-        msg.classList.add("error");
-        return;
-    }
+    if(!billNo){ msg.innerHTML="⚠️ Bill Number ಬೇಕು!"; msg.classList.add("error"); return; }
 
     const customer = await getCustomerData(billNo);
-    if(!customer){
-        msg.innerHTML="❌ Bill Number not found";
-        msg.classList.add("error");
-        return;
-    }
+    if(!customer){ msg.innerHTML="❌ Bill Number not found"; msg.classList.add("error"); return; }
 
     currentCustomer = customer;
     document.getElementById('name').value = customer.name || "Customer";
     document.getElementById('mobile').value = customer.mobile || "-";
     document.getElementById('billAmt').value = customer.payable || customer.amount || "0";
-    msg.innerHTML="✅ Details loaded. Now press Proceed!";
-    msg.classList.add("success");
+    msg.innerHTML="✅ Details loaded. Now press Proceed."; msg.classList.add("success");
 }
 
-// ===== First Screen Logic =====
-async function proceed() {
+// ===== Proceed Logic =====
+function proceed() {
     const msg = document.getElementById('msg');
     const condBox = document.getElementById('firstScreenConditionBox');
     msg.innerHTML=""; msg.className="message";
 
-    if(!currentCustomer){
-        msg.innerHTML="⚠️ Please load bill details first!";
-        msg.classList.add("error");
-        return;
+    if(!currentCustomer){ 
+        msg.innerHTML="⚠️ Please load details first!"; 
+        msg.classList.add("error"); 
+        return; 
     }
 
     const billNo = currentCustomer.billNo;
@@ -355,7 +340,7 @@ const ctx = canvas.getContext('2d');
 const offer = document.getElementById('offer');
 let isDrawing=false, scratchActions=0, revealed=false;
 
-function getPointerPos(e){ const rect=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y:(e.touches?e.touches[0].clientY:e.clientY)-rect.top}; }
+function getPointerPos(e){ const rect=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y:(e.touches?e.touches[0].clientY:e.clientX)-rect.left}; }
 function scratch(e){ const pos=getPointerPos(e); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(pos.x,pos.y,20,0,Math.PI*2); ctx.fill(); }
 function startScratch(e){ if(revealed) return; isDrawing=true; }
 function performScratch(e){ if(!isDrawing || revealed) return; scratch(e); }
@@ -368,10 +353,8 @@ function endScratch(e){
     }
     isDrawing=false;
 }
-
 function generateCouponCode(){ return 'LS-'+Math.random().toString(36).substring(2,10).toUpperCase(); }
 function getCurrentDateTime(){ return new Date().toLocaleString(); }
-
 function updateWhatsAppButton(randomGift, couponCode, dateTime){
     const name = currentCustomer?.name || "Customer";
     const billNo = currentCustomer?.billNo || "-";
@@ -381,7 +364,6 @@ I am very happy with this Scratch & Win Card.\n\nCustomer Name: ${name}\nBill No
     const encodedMessage=encodeURIComponent(message);
     document.getElementById('whatsappButton').href=`https://wa.me/918431270716?text=${encodedMessage}`;
 }
-
 function startCelebrationAndAfterBox(){
     const billAmt = parseFloat(currentCustomer?.payable || currentCustomer?.amount || 0);
     let gifts=[];
@@ -397,15 +379,12 @@ function startCelebrationAndAfterBox(){
     const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
     revealFull(randomGift);
 }
-
 function revealFull(randomGift){
     revealed=true; ctx.clearRect(0,0,canvas.width,canvas.height); offer.innerText=randomGift; offer.style.display='flex';
-
     setTimeout(()=>{
         const name = currentCustomer?.name || "Customer";
         const billNo = currentCustomer?.billNo || "-";
         const billAmt = currentCustomer?.payable || currentCustomer?.amount || "0";
-
         if(randomGift!=='😢 Better luck next time'){
             const code=generateCouponCode(); 
             const dateTime=getCurrentDateTime();
@@ -417,7 +396,6 @@ function revealFull(randomGift){
             document.getElementById('scratchDateTime').innerText=`Date & Time: ${dateTime}`;
             document.getElementById('afterScratchConditionBox').style.display='block';
             updateWhatsAppButton(randomGift,code,dateTime);
-
             const used = usedBills.find(b=>b.billNo===billNo);
             if(used){ 
                 used.gift=randomGift; 
@@ -426,7 +404,6 @@ function revealFull(randomGift){
                 document.getElementById('condCouponCode').innerText=`Coupon Code: ${code}`;
                 document.getElementById('condWinningGift').innerText=`Winning Gift: ${randomGift}`;
             }
-
             const celebrationContainer=document.getElementById('celebrationContainer'); 
             celebrationContainer.innerHTML='';
             const particles=['🌸','✨','🎉','💥','🌟','💫','🌟','✨','⚡'];
@@ -446,7 +423,6 @@ function revealFull(randomGift){
         } else { offer.innerText='😢 Better luck next time.'; } 
     },1000);
 }
-
 // Initialize scratch overlay
 ctx.fillStyle='silver'; 
 ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -454,7 +430,6 @@ ctx.font='bold 18px Arial';
 ctx.fillStyle='black'; 
 ctx.textAlign='center';
 ctx.fillText('SCRATCH HERE 🎉',canvas.width/2,canvas.height/2);
-
 canvas.addEventListener('pointerdown', startScratch); 
 canvas.addEventListener('pointermove', performScratch);
 canvas.addEventListener('pointerup', endScratch); 
