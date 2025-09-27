@@ -209,12 +209,13 @@ header {
     <!-- BillNo + Load Button row -->
   <div style="display:flex; gap:8px; align-items:center;">
   <input type="text" id="billNo" placeholder="Enter Your Bill Number"
-         style="flex:1; padding:14px; font-size:1rem; border-radius:10px; border:1px solid #ccc; box-sizing:border-box;">
+         style="flex:1; padding:14px; font-size:1rem; border-radius:10px; border:1px solid #ccc; box-sizing:border-box; height:48px;">
   <button onclick="loadDetails()" 
-          style="padding:14px 20px; font-size:1rem; border-radius:10px; border:none; background:#4CAF50; color:white; font-weight:bold; cursor:pointer; white-space:nowrap;">
+          style="flex:1; height:48px; font-size:1rem; border-radius:10px; border:none; background:#4CAF50; color:white; font-weight:bold; cursor:pointer;">
       Load
   </button>
 </div>
+
 
     <input type="text" id="name" placeholder="Customer Name" readonly>
     <input type="text" id="mobile" placeholder="Mobile Number" readonly>
@@ -436,4 +437,5 @@ canvas.addEventListener('pointerup', endScratch);
 </script>
 </body>
 </html>
+
 
