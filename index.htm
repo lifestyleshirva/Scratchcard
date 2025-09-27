@@ -270,13 +270,13 @@ header {
 let usedBills = JSON.parse(localStorage.getItem('usedBills') || '[]');
 function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedBills)); }
 
-// ===== JSON Fetch =====
+// ===== Fetch Customer Data =====
 async function getCustomerData(billNo){
-  const res = await fetch("bills.json");
+  const res = await fetch("https://bill-4rh.pages.dev/bills.json");
   const data = await res.json();
   const bills = data.bills || data;
   const customer = bills.find(c => c.billNo === billNo);
-  if (customer && customer.payable && !customer.amount){
+  if(customer && customer.payable && !customer.amount){
     customer.amount = parseFloat(customer.payable);
   }
   return customer;
@@ -291,17 +291,28 @@ async function proceed() {
     msg.className="message";
 
     if(!billNo){ 
-        msg.innerHTML="⚠️ Enter Bill Number!"; 
+        msg.innerHTML="⚠️ Bill Number ಬೇಕು!"; 
         msg.classList.add("error"); 
         return; 
     }
 
+    const customer = await getCustomerData(billNo);
+
+    if(!customer){
+        msg.innerHTML="❌ Bill Number not found"; 
+        msg.classList.add("error"); 
+        return;
+    }
+
+    const name = customer.name || "Customer";
+    const billAmt = parseFloat(customer.amount || customer.payable || 0);
+
     let used = usedBills.find(b=>b.billNo===billNo);
     if(used){
-        msg.innerHTML="❌ Bill number already used!"; 
+        msg.innerHTML="❌ Already used!"; 
         msg.classList.add("error");
         condBox.style.display='block';
-        document.getElementById('condCustName').innerText=`Customer Name: ${used.name||'-'}`;
+        document.getElementById('condCustName').innerText=`Customer Name: ${used.name}`;
         document.getElementById('condBillNo').innerText=`Bill Number: ${used.billNo}`;
         document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${used.billAmt}`;
         document.getElementById('condCouponCode').innerText=`Coupon Code: ${used.coupon || '-'}`;
@@ -309,18 +320,13 @@ async function proceed() {
         return;
     }
 
-    const customer = await getCustomerData(billNo);
-    if(!customer){
-        msg.innerHTML="❌ Bill number not found in records."; 
-        msg.classList.add("error");
-        return;
+    if(billAmt < 1000){ 
+        msg.innerHTML="⚠️ Scratch card not available under ₹1000"; 
+        msg.classList.add("error"); 
+        return; 
     }
 
-    const name = customer.name || "Customer";
-    const billAmt = parseFloat(customer.amount || customer.payable || 0);
-    const mobile = customer.mobile || "";
-
-    usedBills.push({billNo,name,billAmt,mobile,gift:null,coupon:null}); 
+    usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); 
     saveUsedBills();
 
     msg.innerHTML=`✅ Hello ${name}, your bill is accepted!`; 
@@ -333,19 +339,14 @@ async function proceed() {
     document.getElementById('condCouponCode').innerText=`Coupon Code: -`;
     document.getElementById('condWinningGift').innerText=`Winning Gift: -`;
 
-    if(billAmt >= 1000){
-        document.getElementById('firstScreen').style.display="none";
-        document.getElementById('secondScreen').style.display="flex";
+    document.getElementById('firstScreen').style.display="none";
+    document.getElementById('secondScreen').style.display="flex";
 
-        const gifts = ['🎁 Surprise Gift','💰 Cashback Offer'];
-        const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
-        const offerDiv = document.getElementById('offer');
-        offerDiv.innerText = randomGift;
-        offerDiv.style.display = 'flex';
-    } else {
-        msg.innerHTML="⚠️ Scratch card not available under ₹1000"; 
-        msg.classList.add("error"); 
-    }
+    const gifts = ['🎁 Surprise Gift','💰 Cashback Offer'];
+    const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
+    const offerDiv = document.getElementById('offer');
+    offerDiv.innerText = randomGift;
+    offerDiv.style.display = 'flex';
 }
 
 // ===== Scratch Logic =====
