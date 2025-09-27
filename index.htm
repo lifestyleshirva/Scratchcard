@@ -58,10 +58,19 @@ header { background:#4CAF50; color:white; padding:15px; text-align:center; font-
 let usedBills = JSON.parse(localStorage.getItem('usedBills')||'[]');
 function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedBills)); }
 
+// ✅ Fixed to support bills.json structure
 async function getCustomerData(billNo){
-  const res = await fetch("customers.json");
+  const res = await fetch("bills.json");
   const data = await res.json();
-  return data.find(c=>c.billNo===billNo);
+  const bills = data.bills || data;   // support wrapped JSON or direct array
+  const customer = bills.find(c => c.billNo === billNo);
+
+  if (customer) {
+    if (customer.payable && !customer.amount) {
+      customer.amount = parseFloat(customer.payable);
+    }
+  }
+  return customer;
 }
 
 async function proceed(){
@@ -75,7 +84,7 @@ async function proceed(){
   let used=usedBills.find(b=>b.billNo===billNo);
   if(used){ 
     condBox.style.display='block';
-    document.getElementById('condCustName').innerText=`Customer: ${used.name} (${used.mobile})`;
+    document.getElementById('condCustName').innerText=`Customer: ${used.name||'-'} (${used.mobile||'-'})`;
     document.getElementById('condBillNo').innerText=`Bill: ${used.billNo}`;
     document.getElementById('condBillAmt').innerText=`Amount: ₹${used.billAmt}`;
     document.getElementById('condCouponCode').innerText=`Coupon: ${used.coupon}`;
@@ -91,7 +100,7 @@ async function proceed(){
   saveUsedBills();
 
   condBox.style.display='block';
-  document.getElementById('condCustName').innerText=`Customer: ${customer.name} (${customer.mobile})`;
+  document.getElementById('condCustName').innerText=`Customer: ${customer.name||'-'} (${customer.mobile||'-'})`;
   document.getElementById('condBillNo').innerText=`Bill: ${billNo}`;
   document.getElementById('condBillAmt').innerText=`Amount: ₹${customer.amount}`;
   document.getElementById('condCouponCode').innerText="Coupon: -";
@@ -142,7 +151,7 @@ function revealFull(gift,existingCoupon=null,existingDate=null){
   let cust=usedBills[usedBills.length-1];
   const code=existingCoupon||generateCoupon();
   const dt=existingDate||getNow();
-  document.getElementById('afterCustName').innerText=`Customer: ${cust.name}`;
+  document.getElementById('afterCustName').innerText=`Customer: ${cust.name||'-'}`;
   document.getElementById('afterBillNo').innerText=`Bill No: ${cust.billNo}`;
   document.getElementById('afterBillAmt').innerText=`Amount: ₹${cust.billAmt}`;
   document.getElementById('winningInfo').innerText=`You Won: ${gift}`;
