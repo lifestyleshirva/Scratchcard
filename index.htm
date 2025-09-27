@@ -52,10 +52,6 @@ header {
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
-.dashboard input:focus {
-    border: 1px solid #4CAF50;
-    box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
-}
 .dashboard button {
     width: 100%;
     padding: 14px;
@@ -358,7 +354,7 @@ function endScratch(e){
 
 // ===== Reveal after scratch =====
 function startCelebrationAndAfterBox(){
-    const billAmt = parseFloat(usedBills[usedBills.length-1].billAmt);
+    const billAmt = parseFloat(document.getElementById('billAmt') ? document.getElementById('billAmt').value.trim() : (usedBills[usedBills.length-1] && usedBills[usedBills.length-1].billAmt) || 0);
     let gifts=[];
     if(billAmt>=1000 && billAmt<1500) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];
     else if(billAmt>=1500 && billAmt<2000) gifts=['💰20 ₹ Cashback','💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];
@@ -382,31 +378,35 @@ function updateWhatsAppButton(randomGift, couponCode, dateTime){
     const message=`Hi Life Style Shirva Team.
 I am very happy with this Scratch & Win Card.\n\nCustomer Name: ${cust.name}\nBill No: ${billNo}\nBill Amount: ₹${cust.billAmt}\nWinning Prize: ${randomGift}\nCard No: ${couponCode}\nDate & Time: ${dateTime}`;
     const encodedMessage=encodeURIComponent(message);
-    document.getElementById('whatsappButton').href=`https://wa.me/918431270716?text=${encodedMessage}`;
+    const waButton = document.getElementById('whatsappButton');
+    if(waButton) waButton.href=`https://wa.me/918431270716?text=${encodedMessage}`;
 }
 
 function revealFull(randomGift, existingCoupon=null, existingDateTime=null, name=null, billNo=null, billAmt=null){
     revealed=true; ctx.clearRect(0,0,canvas.width,canvas.height); offer.innerText=randomGift; offer.style.display='flex';
 
     setTimeout(()=>{
+        const nameVal = name || (usedBills[usedBills.length-1] && usedBills[usedBills.length-1].name) || '';
+        const billNoVal = billNo || (usedBills[usedBills.length-1] && usedBills[usedBills.length-1].billNo) || '';
+        const billAmtVal = billAmt || (usedBills[usedBills.length-1] && usedBills[usedBills.length-1].billAmt) || '';
+
         const code = existingCoupon || generateCouponCode(); 
         const dateTime = existingDateTime || getCurrentDateTime();
 
-        const cust = usedBills.find(b=>b.billNo===billNo) || usedBills[usedBills.length-1];
-
-        document.getElementById('afterCustName').innerText=`Customer Name: ${cust.name}`;
-        document.getElementById('afterBillNo').innerText=`Bill Number: ${cust.billNo}`;
-        document.getElementById('afterBillAmt').innerText=`Bill Amount: ₹${cust.billAmt}`;
+        document.getElementById('afterCustName').innerText=`Customer Name: ${nameVal}`;
+        document.getElementById('afterBillNo').innerText=`Bill Number: ${billNoVal}`;
+        document.getElementById('afterBillAmt').innerText=`Bill Amount: ₹${billAmtVal}`;
         document.getElementById('winningInfo').innerText=`You Won: ${randomGift}`;
         document.getElementById('couponCodeInfo').innerText=`Code: ${code}`;
         document.getElementById('scratchDateTime').innerText=`Date & Time: ${dateTime}`;
         document.getElementById('afterScratchConditionBox').style.display='block';
         updateWhatsAppButton(randomGift,code,dateTime);
 
-        if(cust && !cust.gift){
-            cust.gift=randomGift;
-            cust.coupon=code;
-            cust.dateTime=dateTime;
+        const used = usedBills.find(b=>b.billNo===billNoVal);
+        if(used && !used.gift){
+            used.gift=randomGift;
+            used.coupon=code;
+            used.dateTime=dateTime;
             saveUsedBills();
             document.getElementById('condCouponCode').innerText=`Coupon Code: ${code}`;
             document.getElementById('condWinningGift').innerText=`Winning Gift: ${randomGift}`;
@@ -415,21 +415,23 @@ function revealFull(randomGift, existingCoupon=null, existingDateTime=null, name
         // Celebration only if new
         if(!existingCoupon){
             const celebrationContainer=document.getElementById('celebrationContainer'); 
-            celebrationContainer.innerHTML='';
-            const particles=['🌸','✨','🎉','💥','🌟','💫','🌟','✨','⚡'];
-            for(let i=0;i<60;i++){ 
-                const span=document.createElement('span'); 
-                span.className='particle';
-                span.innerText=particles[Math.floor(Math.random()*particles.length)];
-                span.style.left=Math.random()*window.innerWidth+'px';
-                span.style.top=Math.random()*window.innerHeight+'px';
-                span.style.setProperty('--x',(Math.random()-0.5)*600+'px');
-                span.style.setProperty('--y',(Math.random()-0.5)*600+'px');
-                span.style.animationDelay=Math.random()+'s'; 
-                celebrationContainer.appendChild(span);
-            } 
-            celebrationContainer.style.display='block'; 
-            setTimeout(()=>{celebrationContainer.style.display='none';},5000);
+            if(celebrationContainer){
+                celebrationContainer.innerHTML='';
+                const particles=['🌸','✨','🎉','💥','🌟','💫','🌟','✨','⚡'];
+                for(let i=0;i<60;i++){ 
+                    const span=document.createElement('span'); 
+                    span.className='particle';
+                    span.innerText=particles[Math.floor(Math.random()*particles.length)];
+                    span.style.left=Math.random()*window.innerWidth+'px';
+                    span.style.top=Math.random()*window.innerHeight+'px';
+                    span.style.setProperty('--x',(Math.random()-0.5)*600+'px');
+                    span.style.setProperty('--y',(Math.random()-0.5)*600+'px');
+                    span.style.animationDelay=Math.random()+'s'; 
+                    celebrationContainer.appendChild(span);
+                } 
+                celebrationContainer.style.display='block'; 
+                setTimeout(()=>{celebrationContainer.style.display='none';},5000);
+            }
         }
     },1000);
 }
