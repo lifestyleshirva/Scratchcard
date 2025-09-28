@@ -206,63 +206,65 @@ header {
 
 <!-- First Screen -->
 <div class="dashboard" id="firstScreen">
+    <!-- BillNo + Load Button row -->
   <div style="display:flex; gap:8px; align-items:center;">
-    <input type="text" id="billNo" placeholder="Enter Your Bill Number"
+  <input type="text" id="billNo" placeholder="Enter Bill Number"
          style="flex:1; padding:14px; font-size:1rem; border-radius:10px; border:1px solid #ccc; box-sizing:border-box; height:48px;">
-    <button onclick="loadDetails()" 
+  <button onclick="loadDetails()" 
           style="flex:1; height:48px; font-size:1rem; border-radius:10px; border:none; background:#4CAF50; color:white; font-weight:bold; cursor:pointer;">
       Load
-    </button>
-  </div>
+  </button>
+</div>
 
-  <input type="text" id="name" placeholder="Customer Name" readonly>
-  <input type="text" id="mobile" placeholder="Mobile Number" readonly>
-  <input type="text" id="billAmt" placeholder="Bill Amount" readonly>
-  <button id="proceedBtn" onclick="proceed()">Proceed</button>
-  <div id="msg" class="message"></div>
 
-  <div id="firstScreenConditionBox">
-    <span id="condCustName">Customer: </span>
-    <span id="condBillNo">Bill Number: </span>
-    <span id="condBillAmt">Bill Amount: </span>
-    <span id="condCouponCode">Coupon Code: </span>
-    <span id="condWinningGift">Winning Gift: </span>
-  </div>
+    <input type="text" id="name" placeholder="Customer Name" readonly>
+    <input type="text" id="mobile" placeholder="Mobile Number" readonly>
+    <input type="text" id="billAmt" placeholder="Bill Amount" readonly>
+    <button id="proceedBtn" onclick="proceed()">Proceed</button>
+    <div id="msg" class="message"></div>
 
-  <div id="termsAndConditions">
-    * Scratch Card is valid only on purchases above ₹1000.<br>
-    * Scratch Card is valid for 10 days only.<br>
-    * Each customer can use only one scratch card per purchase.<br>
-    * Take a screenshot of the result.<br>
-    * No exchange. Scratch card is final.<br>
-    * Scratch cards are non-transferable & non-exchangeable
-  </div>
+    <div id="firstScreenConditionBox">
+        <span id="condCustName">Customer: </span>
+        <span id="condBillNo">Bill Number: </span>
+        <span id="condBillAmt">Bill Amount: </span>
+        <span id="condCouponCode">Coupon Code: </span>
+        <span id="condWinningGift">Winning Gift: </span>
+    </div>
+
+    <div id="termsAndConditions">
+        * Scratch Card is valid only on purchases above ₹1000.<br>
+        * Scratch Card is valid for 10 days only.<br>
+        * Each customer can use only one scratch card per purchase.<br>
+        * Take a screenshot of the result.<br>
+        * No exchange. Scratch card is final.<br>
+        * Scratch cards are non-transferable & non-exchangeable
+    </div>
 </div>
 
 <!-- Second Screen -->
 <div class="scratch-container" id="secondScreen">
-  <div class="header-text">Scratch & Win🏆</div>
-  <div style="position:relative;">
-    <canvas id="scratchCanvas" width="300" height="300"></canvas>
-    <div id="offer"></div>
-  </div>
-  <div class="lamp-container">
-    <div class="lamp"></div><div class="lamp"></div>
-  </div>
-  <div class="footer-text">© 2025 Life Style Shirva 💖</div>
+    <div class="header-text">Scratch & Win🏆</div>
+    <div style="position:relative;">
+        <canvas id="scratchCanvas" width="300" height="300"></canvas>
+        <div id="offer"></div>
+    </div>
+    <div class="lamp-container">
+        <div class="lamp"></div><div class="lamp"></div>
+    </div>
+    <div class="footer-text">© 2025 Life Style Shirva 💖</div>
 
-  <div id="afterScratchConditionBox">
-    <h1 class="blinking">🌟💰 Congratulations! 🏆 🌟</h1>
-    <span id="afterCustName">Customer: </span>
-    <span id="afterBillNo">Bill Number: </span>
-    <span id="afterBillAmt">Bill Amount: </span>
-    <span id="winningInfo">You Won: XXXXXXX</span>
-    <span id="couponCodeInfo">Code: ABCD-XXXX-XXXX</span>
-    <span id="scratchDateTime">Date & Time: DD-MM-YYYY</span>
-    <a href="#" id="whatsappButton" style="background:green;color:white;padding:12px 30px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">Send to WhatsApp</a>
-  </div>
+    <div id="afterScratchConditionBox">
+        <h1 class="blinking">🌟💰 Congratulations! 🏆 🌟</h1>
+        <span id="afterCustName">Customer: </span>
+        <span id="afterBillNo">Bill Number: </span>
+        <span id="afterBillAmt">Bill Amount: </span>
+        <span id="winningInfo">You Won: XXXXXXX</span>
+        <span id="couponCodeInfo">Code: ABCD-XXXX-XXXX</span>
+        <span id="scratchDateTime">Date & Time: DD-MM-YYYY</span>
+        <a href="#" id="whatsappButton" style="background:green;color:white;padding:12px 30px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">Send to WhatsApp</a>
+    </div>
 
-  <div class="celebration" id="celebrationContainer"></div>
+    <div class="celebration" id="celebrationContainer"></div>
 </div>
 
 <script>
@@ -272,72 +274,65 @@ function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedB
 
 // ===== Fetch JSON =====
 async function getCustomerData(billNo){
-  const res = await fetch("https://scarth-records-api.lifestyleshirva.workers.dev/");
+  const res = await fetch("https://bill-4rh.pages.dev/bills.json");
   const data = await res.json();
-  const bills = data.records || data.bills || [];
+  const bills = data.bills || data;
   return bills.find(c => c.billNo === billNo);
 }
 
 let currentCustomer = null;
 
 async function loadDetails(){
-  const billNo = document.getElementById('billNo').value.trim();
-  const msg = document.getElementById('msg');
-  msg.innerHTML=""; msg.className="message";
+    const billNo = document.getElementById('billNo').value.trim();
+    const msg = document.getElementById('msg');
+    msg.innerHTML=""; msg.className="message";
 
-  if(!billNo){ msg.innerHTML="⚠️ Bill Number ಬೇಕು!"; msg.classList.add("error"); return; }
+    if(!billNo){ msg.innerHTML="⚠️ Bill Number ಬೇಕು!"; msg.classList.add("error"); return; }
 
-  const customer = await getCustomerData(billNo);
-  if(!customer){ msg.innerHTML="❌ Bill Number not found"; msg.classList.add("error"); return; }
+    const customer = await getCustomerData(billNo);
+    if(!customer){ msg.innerHTML="❌ Bill Number not found"; msg.classList.add("error"); return; }
 
-  currentCustomer = customer;
-  document.getElementById('name').value = customer.name || "Customer";
-  document.getElementById('mobile').value = customer.mobile || "-";
-  document.getElementById('billAmt').value = customer.payable || customer.amount || "0";
-  msg.innerHTML="✅ Details loaded. Now press Proceed."; msg.classList.add("success");
+    currentCustomer = customer;
+    document.getElementById('name').value = customer.name || "Customer";
+    document.getElementById('mobile').value = customer.mobile || "-";
+    document.getElementById('billAmt').value = customer.payable || customer.amount || "0";
+    msg.innerHTML="✅ Details loaded. Now press Proceed."; msg.classList.add("success");
 }
 
 // ===== Proceed Logic =====
 function proceed() {
-  const msg = document.getElementById('msg');
-  const condBox = document.getElementById('firstScreenConditionBox');
-  msg.innerHTML=""; msg.className="message";
+    const msg = document.getElementById('msg');
+    const condBox = document.getElementById('firstScreenConditionBox');
+    msg.innerHTML=""; msg.className="message";
 
-  if(!currentCustomer){ 
-      msg.innerHTML="⚠️ Please load details first!"; 
-      msg.classList.add("error"); 
-      return; 
-  }
+    if(!currentCustomer){ 
+        msg.innerHTML="⚠️ Please load details first!"; 
+        msg.classList.add("error"); 
+        return; 
+    }
 
-  const billNo = currentCustomer.billNo;
-  const name = currentCustomer.name || "Customer";
-  const billAmt = parseFloat(currentCustomer.payable || currentCustomer.amount || 0);
+    const billNo = currentCustomer.billNo;
+    const name = currentCustomer.name || "Customer";
+    const billAmt = parseFloat(currentCustomer.payable || currentCustomer.amount || 0);
 
-  // 👉 Validation: only 1000 & above allowed
-  if(billAmt < 1000){
-      msg.innerHTML = "⚠️ Scratch Card not available under ₹1000";
-      msg.classList.add("error");
-      return;
-  }
+    const used = usedBills.find(b=>b.billNo===billNo);
+    if(used){
+        msg.innerHTML="❌ Already used!";
+        msg.classList.add("error");
+        condBox.style.display='block';
+        document.getElementById('condCustName').innerText=`Customer Name: ${used.name}`;
+        document.getElementById('condBillNo').innerText=`Bill Number: ${used.billNo}`;
+        document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${used.billAmt}`;
+        document.getElementById('condCouponCode').innerText=`Coupon Code: ${used.coupon || '-'}`;
+        document.getElementById('condWinningGift').innerText=`Winning Gift: ${used.gift || '-'}`;
+        return;
+    }
 
-  const used = usedBills.find(b=>b.billNo===billNo);
-  if(used){
-      msg.innerHTML="❌ Already used!";
-      msg.classList.add("error");
-      condBox.style.display='block';
-      document.getElementById('condCustName').innerText=`Customer Name: ${used.name}`;
-      document.getElementById('condBillNo').innerText=`Bill Number: ${used.billNo}`;
-      document.getElementById('condBillAmt').innerText=`Bill Amount: ₹${used.billAmt}`;
-      document.getElementById('condCouponCode').innerText=`Coupon Code: ${used.coupon || '-'}`;
-      document.getElementById('condWinningGift').innerText=`Winning Gift: ${used.gift || '-'}`;
-      return;
-  }
+    usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); 
+    saveUsedBills();
 
-  usedBills.push({billNo,name,billAmt,gift:null,coupon:null}); 
-  saveUsedBills();
-
-  document.getElementById('firstScreen').style.display="none";
-  document.getElementById('secondScreen').style.display="flex";
+    document.getElementById('firstScreen').style.display="none";
+    document.getElementById('secondScreen').style.display="flex";
 }
 
 // ===== Scratch Logic =====
@@ -346,7 +341,7 @@ const ctx = canvas.getContext('2d');
 const offer = document.getElementById('offer');
 let isDrawing=false, scratchActions=0, revealed=false;
 
-function getPointerPos(e){ const rect=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y:(e.touches?e.touches[0].clientY:e.clientY)-rect.top}; }
+function getPointerPos(e){ const rect=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y:(e.touches?e.touches[0].clientY:e.clientX)-rect.left}; }
 function scratch(e){ const pos=getPointerPos(e); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(pos.x,pos.y,20,0,Math.PI*2); ctx.fill(); }
 function startScratch(e){ if(revealed) return; isDrawing=true; }
 function performScratch(e){ if(!isDrawing || revealed) return; scratch(e); }
@@ -442,3 +437,6 @@ canvas.addEventListener('pointerup', endScratch);
 </script>
 </body>
 </html>
+
+
+
