@@ -285,9 +285,25 @@ let currentCustomer = null;
 async function loadDetails(){
     const billNo = document.getElementById('billNo').value.trim();
     const msg = document.getElementById('msg');
+    const billAmtBox = document.getElementById('billAmt');
     msg.innerHTML=""; msg.className="message";
 
     if(!billNo){ msg.innerHTML="⚠️ Bill Number ಬೇಕು!"; msg.classList.add("error"); return; }
+
+    // Special case: MASTER bill number = 6008
+    if(billNo.toUpperCase() === "6008"){
+        currentCustomer = { billNo: billNo, name: "Master Entry", mobile: "-", amount: 0 };
+        document.getElementById('name').value = "Master Entry";
+        document.getElementById('mobile').value = "-";
+
+        // make bill amount editable for MASTER
+        billAmtBox.removeAttribute('readonly');
+        billAmtBox.value = "";
+
+        msg.innerHTML="✅ Master Bill mode enabled (6008). Enter Bill Amount manually."; 
+        msg.classList.add("success");
+        return;
+    }
 
     const customer = await getCustomerData(billNo);
     if(!customer){ msg.innerHTML="❌ Bill Number not found"; msg.classList.add("error"); return; }
@@ -296,6 +312,8 @@ async function loadDetails(){
     document.getElementById('name').value = customer.name || "Customer";
     document.getElementById('mobile').value = customer.mobile || "-";
     document.getElementById('billAmt').value = customer.payable || customer.amount || "0";
+    // ensure bill amount is readonly in normal cases
+    document.getElementById('billAmt').setAttribute('readonly', true);
     msg.innerHTML="✅ Details loaded. Now press Proceed."; msg.classList.add("success");
 }
 
@@ -313,7 +331,8 @@ function proceed() {
 
     const billNo = currentCustomer.billNo;
     const name = currentCustomer.name || "Customer";
-    const billAmt = parseFloat(currentCustomer.payable || currentCustomer.amount || 0);
+    // read bill amount from input (this allows MASTER to be entered manually)
+    const billAmt = parseFloat(document.getElementById('billAmt').value || 0);
 
     // ✅ New condition: 1000 rupees above only
     if(billAmt < 1000){
@@ -372,6 +391,38 @@ I am very happy with this Scratch & Win Card.\n\nCustomer Name: ${name}\nBill No
     const encodedMessage=encodeURIComponent(message);
     document.getElementById('whatsappButton').href=`https://wa.me/918431270716?text=${encodedMessage}`;
 }
+
+// ----- NEW: automatic XpressBot template send -----
+function sendWhatsAppAPI(randomGift, code, dateTime){
+  // ensure currentCustomer or manual bill amount is used
+  const rawPhone = currentCustomer?.mobile || document.getElementById('mobile').value || "";
+  if(!rawPhone || rawPhone.trim()==="-" ) return; // no phone to send
+  const phone = rawPhone.toString().replace(/\D/g,'');
+  // payload according to XpressBot expected body (as discussed)
+  const payload = {
+    apiToken: "13371|8i5vIwK0zrWgXTRHBbVIaWm5HaQS0kfnpjZN23M79845350d",
+    phone_number_id: "771424666049213",
+    template_id: "243960",
+    phone_number: phone,
+    template_params: [
+      currentCustomer?.name || document.getElementById('name').value || "",
+      currentCustomer?.billNo || document.getElementById('billNo').value || "",
+      randomGift,
+      code,
+      dateTime
+    ]
+  };
+  fetch("https://app.xpressbot.org/api/v1/whatsapp/send/template", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  })
+  .then(r=>r.json())
+  .then(d=>console.log("XpressBot response:",d))
+  .catch(err=>console.error("XpressBot error:",err));
+}
+// ----- end XpressBot send -----
+
 function startCelebrationAndAfterBox(){
     const billAmt = parseFloat(currentCustomer?.payable || currentCustomer?.amount || 0);
     let gifts=[];
@@ -392,7 +443,8 @@ function revealFull(randomGift){
     setTimeout(()=>{
         const name = currentCustomer?.name || "Customer";
         const billNo = currentCustomer?.billNo || "-";
-        const billAmt = currentCustomer?.payable || currentCustomer?.amount || "0";
+        // read bill amount from input (covers MASTER editable case)
+        const billAmt = document.getElementById('billAmt').value || "0";
         if(randomGift!=='😢 Better luck next time'){
             const code=generateCouponCode(); 
             const dateTime=getCurrentDateTime();
@@ -404,6 +456,8 @@ function revealFull(randomGift){
             document.getElementById('scratchDateTime').innerText=`Date & Time: ${dateTime}`;
             document.getElementById('afterScratchConditionBox').style.display='block';
             updateWhatsAppButton(randomGift,code,dateTime);
+            // auto-send to customer via XpressBot
+            sendWhatsAppAPI(randomGift, code, dateTime);
             const used = usedBills.find(b=>b.billNo===billNo);
             if(used){ 
                 used.gift=randomGift; 
