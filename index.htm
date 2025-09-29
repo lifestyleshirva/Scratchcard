@@ -98,106 +98,6 @@ header {
     overflow-y: auto;
     max-height: 20vh;
 }
-/* ===== Second Screen ===== */
-.scratch-container {
-    position: relative;
-    width: 100%;
-    max-width: 420px;
-    background: radial-gradient(circle, #FFFAF0, #FF6347);
-    border-radius: 20px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 15px;
-    box-sizing: border-box;
-    flex-shrink: 0;
-}
-/* Header Text */
-.header-text {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #FFD700;
-    text-align: center;
-    text-shadow: 1px 1px 3px #000;
-    animation: grandBlink .5s infinite;
-    margin-bottom: 10px;
-}
-@keyframes grandBlink {
-    0%,100%{ color:#FFD700; transform:scale(1); text-shadow:0 0 5px #FFD700; }
-    50%{ color:#FF4500; transform:scale(1.1); text-shadow:0 0 10px #FF4500; }
-}
-/* Circle Scratch Canvas */
-#scratchCanvas {
-    width: 90vw;
-    max-width: 320px;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-    display: block;
-    margin: px auto;
-    touch-action: none;
-    position: relative;
-    z-index: 2;
-}
-#offer {
-    position:absolute;
-    width:90vw;
-    max-width:320px;
-    aspect-ratio:1/1;
-    top:0;
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    background:#FFF8DC;
-    border-radius:50%;
-    font-weight:bold;
-    font-size:3rem;
-    color:#333;
-    padding:10px;
-    box-sizing:border-box;
-    z-index:1;
-}
-#afterScratchConditionBox #winningInfo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #FF4500;
-    text-shadow: 1px 1px 5px #FFD700;
-    margin: 15px 0;
-}
-/* Footer and Lamps */
-.lamp-container { width:100%; display:flex; justify-content:space-around; margin-top:10px; }
-.lamp { width:25px; height:25px; background: radial-gradient(circle,#FFD700 60%,#FF8C00 100%); border-radius:50%; box-shadow:0 0 10px #FFD700; }
-.footer-text { text-align:center; font-size:.7rem; color:#5C4033; font-weight:bold; text-shadow:1px 1px 2px #000; margin-top:10px; }
-.blinking { animation: grandBlink .5s infinite; }
-/* After Scratch Condition Box */
-#afterScratchConditionBox {
-    display:none;
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    padding:25px;
-    background:#fff;
-    border:4px solid #FFD700;
-    border-radius:15px;
-    text-align:center;
-    z-index:9999;
-    width:90%;
-    max-width:350px;
-    box-sizing:border-box;
-}
-#afterScratchConditionBox span { display:block; margin:10px 0; font-size:0.9rem; }
-/* Celebration */
-.celebration { position:Fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; overflow:hidden; z-index:9999; display:none; background:transparent; }
-.particle { position:absolute; font-size:1.5rem; opacity:1; animation: realisticFly 5s ease-out forwards; }
-@keyframes realisticFly {
-    0% {transform:translate(0,0) scale(1);opacity:1;}
-    50% {transform:translate(var(--x),var(--y)) scale(1.3);opacity:0.8;}
-    100% {transform:translate(calc(var(--x)*1.5),calc(var(--y)*1.5)) scale(1.6);opacity:0;}
-}
 </style>
 </head>
 <body>
@@ -237,9 +137,8 @@ header {
         * No exchange. Scratch card is final.<br>
         * Scratch cards are non-transferable & non-exchangeable
     </div>
-</div>
-
-<!-- Second Screen -->
+</div>   
+        <!-- Second Screen -->
 <div class="scratch-container" id="secondScreen">
     <div class="header-text">Scratch & Win🏆</div>
     <div style="position:relative;">
@@ -260,9 +159,7 @@ header {
         <span id="couponCodeInfo">Code: ABCD-XXXX-XXXX</span>
         <span id="scratchDateTime">Date & Time: DD-MM-YYYY</span>
 
-        <!-- conditional payment / collection info (shows to customer on screen) -->
-        <span id="paymentInfo" style="font-weight:bold;color:#2a5d2a;margin-top:6px;display:block;"></span>
-
+        <!-- ✅ Manual WhatsApp Button (unchanged) -->
         <a href="#" id="whatsappButton" style="background:green;color:white;padding:12px 30px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">
           Send to WhatsApp
         </a>
@@ -271,19 +168,117 @@ header {
     <div class="celebration" id="celebrationContainer"></div>
 </div>
 
-<script>
+<style>
+/* ===== Second Screen CSS ===== */
+.scratch-container {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: radial-gradient(circle, #FFFAF0, #FF6347);
+    border-radius: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 15px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+.header-text {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #FFD700;
+    text-align: center;
+    text-shadow: 1px 1px 3px #000;
+    animation: grandBlink .5s infinite;
+    margin-bottom: 10px;
+}
+@keyframes grandBlink {
+    0%,100%{ color:#FFD700; transform:scale(1); text-shadow:0 0 5px #FFD700; }
+    50%{ color:#FF4500; transform:scale(1.1); text-shadow:0 0 10px #FF4500; }
+}
+#scratchCanvas {
+    width: 90vw;
+    max-width: 320px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    display: block;
+    margin: px auto;
+    touch-action: none;
+    position: relative;
+    z-index: 2;
+}
+#offer {
+    position:absolute;
+    width:90vw;
+    max-width:320px;
+    aspect-ratio:1/1;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:#FFF8DC;
+    border-radius:50%;
+    font-weight:bold;
+    font-size:3rem;
+    color:#333;
+    padding:10px;
+    box-sizing:border-box;
+    z-index:1;
+}
+#afterScratchConditionBox #winningInfo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #FF4500;
+    text-shadow: 1px 1px 5px #FFD700;
+    margin: 15px 0;
+}
+.lamp-container { width:100%; display:flex; justify-content:space-around; margin-top:10px; }
+.lamp { width:25px; height:25px; background: radial-gradient(circle,#FFD700 60%,#FF8C00 100%); border-radius:50%; box-shadow:0 0 10px #FFD700; }
+.footer-text { text-align:center; font-size:.7rem; color:#5C4033; font-weight:bold; text-shadow:1px 1px 2px #000; margin-top:10px; }
+.blinking { animation: grandBlink .5s infinite; }
+#afterScratchConditionBox {
+    display:none;
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    padding:25px;
+    background:#fff;
+    border:4px solid #FFD700;
+    border-radius:15px;
+    text-align:center;
+    z-index:9999;
+    width:90%;
+    max-width:350px;
+    box-sizing:border-box;
+}
+#afterScratchConditionBox span { display:block; margin:10px 0; font-size:0.9rem; }
+.celebration { position:Fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; overflow:hidden; z-index:9999; display:none; background:transparent; }
+.particle { position:absolute; font-size:1.5rem; opacity:1; animation: realisticFly 5s ease-out forwards; }
+@keyframes realisticFly {
+    0% {transform:translate(0,0) scale(1);opacity:1;}
+    50% {transform:translate(var(--x),var(--y)) scale(1.3);opacity:0.8;}
+    100% {transform:translate(calc(var(--x)*1.5),calc(var(--y)*1.5)) scale(1.6);opacity:0;}
+}
+</style>
+
+       <script>
 // ===== LocalStorage for used bills =====
 let usedBills = JSON.parse(localStorage.getItem('usedBills') || '[]');
 function saveUsedBills(){ localStorage.setItem('usedBills', JSON.stringify(usedBills)); }
 
 // ===== Fetch JSON =====
 async function getCustomerData(billNo){
-  try{
+  try {
     const res = await fetch("https://bill-4rh.pages.dev/bills.json");
     const data = await res.json();
     const bills = data.bills || data;
     return bills.find(c => c.billNo === billNo);
-  }catch(e){
+  } catch(e){
     console.error("Failed to fetch bills.json", e);
     return null;
   }
@@ -300,7 +295,7 @@ async function loadDetails(){
 
     if(!billNo){ msg.innerHTML="⚠️ Bill Number ಬೇಕು!"; msg.classList.add("error"); return; }
 
-    // MASTER bill number unlimited (editable)
+    // MASTER bill number unlimited (6008)
     if(billNo === "6008"){
         currentCustomer = { billNo: billNo, name: "Master Entry", mobile: "-", amount: 0 };
         document.getElementById('name').value = "Master Entry";
@@ -339,14 +334,13 @@ function proceed() {
     const name = currentCustomer.name || "Customer";
     const billAmt = parseFloat(document.getElementById('billAmt').value || 0);
 
-    // Check minimum purchase (except MASTER)
+    // Check min purchase (except MASTER)
     if(billAmt < 1000 && billNo !== "6008"){
         msg.innerHTML = "❌ This scratch card is valid only for purchases of ₹1000 and above.";
         msg.classList.add("error");
         return;
     }
 
-    // For normal bills check already used
     if(billNo !== "6008"){
         const used = usedBills.find(b=>b.billNo===billNo);
         if(used){
@@ -392,7 +386,6 @@ function performScratch(e){ if(!isDrawing || revealed) return; scratch(e); }
 function endScratch(e){
     if(!revealed && isDrawing){
         scratchActions++;
-        // small threshold to trigger reveal quickly
         if(scratchActions >= 1){
             startCelebrationAndAfterBox();
         }
@@ -402,8 +395,7 @@ function endScratch(e){
 function generateCouponCode(){ return 'LS-'+Math.random().toString(36).substring(2,10).toUpperCase(); }
 function getCurrentDateTime(){ return new Date().toLocaleString(); }
 
-// ===== WhatsApp Send (Template 243966) =====
-// Template has 2 placeholders: Bestwishes-1 (Winning Gift), billamount-2 (Purchase Amount)
+// ===== WhatsApp Auto API (Template 243966) =====
 function sendWhatsAppAPI(randomGift, code, dateTime){
   const rawPhone = currentCustomer?.mobile || document.getElementById('mobile').value || "";
   if(!rawPhone || rawPhone.trim()==="-" || !rawPhone.trim()) {
@@ -417,10 +409,9 @@ function sendWhatsAppAPI(randomGift, code, dateTime){
     phone_number_id: "771424666049213",
     template_id: "243966",
     phone_number: phone,
-    // using the simple key:value mapping expected by XpressBot for template vars
     template_params: {
-      "Bestwishes-1": randomGift, // Winning Gift
-      "billamount-2": document.getElementById('billAmt').value || "0" // Purchase Amount
+      "Bestwishes-1": randomGift,
+      "billamount-2": document.getElementById('billAmt').value || "0"
     }
   };
 
@@ -434,136 +425,97 @@ function sendWhatsAppAPI(randomGift, code, dateTime){
   .catch(err=>console.error("XpressBot error:", err));
 }
 
-// Manual "Send to WhatsApp" link — compose plain message (staff to send)
+// ===== Manual Button Message (old format) =====
 function updateWhatsAppButton(randomGift, couponCode, dateTime){
     const name = currentCustomer?.name || document.getElementById('name').value || "Customer";
+    const billNo = currentCustomer?.billNo || document.getElementById('billNo').value || "-";
     const billAmt = document.getElementById('billAmt').value || "0";
-    // determine payment/collection line for the manual message
-    let extraNote = "";
-    if(randomGift && (randomGift.toLowerCase().includes("cashback") || randomGift.includes("₹"))){
-      extraNote = "Winning cashback will be paid by Cash. / ನಿಮ್ಮ ಕ್ಯಾಶ್‌ಬ್ಯಾಕ್ ಅಂಗಡಿಯಿಂದ ನಗದು ರೂಪದಲ್ಲಿ ಲಭ್ಯವಾಗುತ್ತದೆ.";
-    } else {
-      extraNote = "Collect your gift from Life Style Shirva counter. / Life Style Shirva ಕೌಂಟರ್‌ನಿಂದ ನಿಮ್ಮ ಉಡುಗೊರೆ ಸಂಖ್ಯೆ ತೆಗೆದುಕೊಳ್ಳಿ.";
-    }
 
-    const message =
-`Hi ${name},
+    const message = `Hi Life Style Shirva Team.
+I am very happy with this Scratch & Win Card.
 
-You just won ${randomGift} on your purchase of ₹${billAmt}.
-
-It’s Super!
-👉 Come again, Shop again, Win again!
-
-${extraNote}
-Code: ${couponCode}
-Date: ${dateTime}`;
+Customer Name: ${name}
+Bill No: ${billNo}
+Bill Amount: ₹${billAmt}
+Winning Prize: ${randomGift}
+Card No: ${couponCode}
+Date & Time: ${dateTime}`;
 
     const encoded = encodeURIComponent(message);
-    // change this number (after wa.me/) to your store/support number or leave as staff forwarding number
-    document.getElementById('whatsappButton').href = `https://wa.me/91${document.getElementById('mobile').value.replace(/\D/g,'') || ''}?text=${encoded}`;
+    document.getElementById('whatsappButton').href =
+      `https://wa.me/918431270716?text=${encoded}`;
 }
 
-// ===== Choose gift array and reveal =====
+// ===== Celebration + Reveal =====
 function startCelebrationAndAfterBox(){
-    // read billAmt from input (covers MASTER editable case)
     const billAmt = parseFloat(document.getElementById('billAmt').value || 0);
-    // choose gifts based on amount (same bands as original)
     let gifts=[];
-    if(billAmt>=1000 && billAmt<1500) gifts=['₹30 Cashback','₹40 Cashback','₹50 Cashback'];
-    else if(billAmt>=1500 && billAmt<2000) gifts=['₹20 Cashback','₹30 Cashback','₹40 Cashback','₹50 Cashback'];
-    else if(billAmt>=2000 && billAmt<2500) gifts=['₹30 Cashback','₹40 Cashback','₹50 Cashback','₹60 Cashback'];
-    else if(billAmt>=2500 && billAmt<3000) gifts=['₹40 Cashback','₹50 Cashback','₹70 Cashback','₹80 Cashback'];
-    else if(billAmt>=3000 && billAmt<3500) gifts=['₹50 Cashback','₹70 Cashback','₹80 Cashback','₹90 Cashback'];
-    else if(billAmt>=3500 && billAmt<4000) gifts=['₹60 Cashback','₹80 Cashback','₹90 Cashback','₹100 Cashback'];
-    else if(billAmt>=4000 && billAmt<4500) gifts=['₹70 Cashback','₹90 Cashback','₹100 Cashback','₹120 Cashback'];
-    else if(billAmt>=4500 && billAmt<5000) gifts=['₹80 Cashback','₹100 Cashback','₹120 Cashback','₹150 Cashback'];
-    else if(billAmt>=5000) gifts=['₹90 Cashback','₹100 Cashback','₹150 Cashback','₹200 Cashback'];
-    else gifts=['Better luck next time']; // fallback
-
-    // pick random
+    if(billAmt>=1000 && billAmt<1500) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];
+    else if(billAmt>=1500 && billAmt<2000) gifts=['💰20 ₹ Cashback','💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback'];
+    else if(billAmt>=2000 && billAmt<2500) gifts=['💰30 ₹ Cashback','💰40 ₹ Cashback','💰50 ₹ Cashback','💰60 ₹ Cashback'];
+    else if(billAmt>=2500 && billAmt<3000) gifts=['💰40 ₹ Cashback','💰50 ₹ Cashback','💰70 ₹ Cashback','💰80 ₹ Cashback'];
+    else if(billAmt>=3000 && billAmt<3500) gifts=['💰50 ₹ Cashback','💰70 ₹ Cashback','💰80 ₹ Cashback','💰90 ₹ Cashback'];
+    else if(billAmt>=3500 && billAmt<4000) gifts=['💰60 ₹ Cashback','💰80 ₹ Cashback','💰90 ₹ Cashback','💰100 ₹ Cashback'];
+    else if(billAmt>=4000 && billAmt<4500) gifts=['💰70 ₹ Cashback','💰90 ₹ Cashback','💰100 ₹ Cashback','💰120 ₹ Cashback'];
+    else if(billAmt>=4500 && billAmt<5000) gifts=['💰80 ₹ Cashback','💰100 ₹ Cashback','💰120 ₹ Cashback','💰150 ₹ Cashback'];
+    else if(billAmt>=5000) gifts=['💰90 ₹ Cashback','💰100 ₹ Cashback','💰150 ₹ Cashback','💰200 ₹ Cashback'];
     const randomGift = gifts[Math.floor(Math.random()*gifts.length)];
     revealFull(randomGift);
 }
-
-// reveal and show popup, update usedBills (except MASTER)
 function revealFull(randomGift){
-    revealed = true;
+    revealed=true;
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    offer.innerText = randomGift;
-    offer.style.display = 'flex';
+    offer.innerText=randomGift;
+    offer.style.display='flex';
 
     setTimeout(()=>{
-        const name = currentCustomer?.name || document.getElementById('name').value || "Customer";
-        const billNo = currentCustomer?.billNo || document.getElementById('billNo').value || "-";
+        const name = currentCustomer?.name || "Customer";
+        const billNo = currentCustomer?.billNo || "-";
         const billAmt = document.getElementById('billAmt').value || "0";
 
-        if(randomGift !== 'Better luck next time'){
-            const code = generateCouponCode();
-            const dateTime = getCurrentDateTime();
+        const code=generateCouponCode();
+        const dateTime=getCurrentDateTime();
 
-            document.getElementById('afterCustName').innerText = `Customer Name: ${name}`;
-            document.getElementById('afterBillNo').innerText = `Bill Number: ${billNo}`;
-            document.getElementById('afterBillAmt').innerText = `Bill Amount: ₹${billAmt}`;
-            document.getElementById('winningInfo').innerText = `You Won: ${randomGift}`;
-            document.getElementById('couponCodeInfo').innerText = `Code: ${code}`;
-            document.getElementById('scratchDateTime').innerText = `Date & Time: ${dateTime}`;
+        document.getElementById('afterCustName').innerText=`Customer Name: ${name}`;
+        document.getElementById('afterBillNo').innerText=`Bill Number: ${billNo}`;
+        document.getElementById('afterBillAmt').innerText=`Bill Amount: ₹${billAmt}`;
+        document.getElementById('winningInfo').innerText=`You Won: ${randomGift}`;
+        document.getElementById('couponCodeInfo').innerText=`Code: ${code}`;
+        document.getElementById('scratchDateTime').innerText=`Date & Time: ${dateTime}`;
+        document.getElementById('afterScratchConditionBox').style.display='block';
 
-            // decide on-screen payment info
-            const paymentInfoEl = document.getElementById('paymentInfo');
-            if(randomGift.toLowerCase().includes('cashback') || randomGift.includes('₹')){
-                paymentInfoEl.innerText = "Winning cashback will be paid by Cash. / ನಿಮಗೆ ಕ್ಯಾಶ್‌ಬ್ಯಾಕ್ ನಗದು ರೂಪದಲ್ಲಿ ನೀಡಲಾಗುತ್ತದೆ.";
-            } else {
-                paymentInfoEl.innerText = "Collect your gift from Life Style Shirva counter. / Life Style Shirva ಕೌಂಟರ್‌ನಿಂದ ಉಡುಗೊರೆ ವಸೂಲಿ ಮಾಡಿ.";
-            }
+        updateWhatsAppButton(randomGift, code, dateTime);   // Manual
+        sendWhatsAppAPI(randomGift, code, dateTime);        // Auto
 
-            // update manual whatsapp button message
-            updateWhatsAppButton(randomGift, code, dateTime);
-
-            // auto-send to customer using XpressBot template (243966) (Bestwishes-1 = randomGift, billamount-2 = billAmt)
-            sendWhatsAppAPI(randomGift, code, dateTime);
-
-            // Save used info only for non-master bills
-            if(billNo !== "6008"){
-                const used = usedBills.find(b=>b.billNo===billNo);
-                if(used){
-                    used.gift = randomGift;
-                    used.coupon = code;
-                } else {
-                    // if not found (edge case) push
-                    usedBills.push({billNo, name, billAmt, gift: randomGift, coupon: code});
-                }
-                saveUsedBills();
-
-                // update condition box fields for display if needed later
-                document.getElementById('condCouponCode').innerText = `Coupon Code: ${code}`;
-                document.getElementById('condWinningGift').innerText = `Winning Gift: ${randomGift}`;
-            }
-
-            // create celebration particles
-            const celebrationContainer = document.getElementById('celebrationContainer');
-            celebrationContainer.innerHTML = '';
-            const particles = ['🌸','✨','🎉','💥','🌟','💫','🌟','✨','⚡'];
-            for(let i=0;i<60;i++){
-                const span = document.createElement('span');
-                span.className = 'particle';
-                span.innerText = particles[Math.floor(Math.random()*particles.length)];
-                span.style.left = Math.random()*window.innerWidth + 'px';
-                span.style.top = Math.random()*window.innerHeight + 'px';
-                span.style.setProperty('--x', (Math.random()-0.5)*600 + 'px');
-                span.style.setProperty('--y', (Math.random()-0.5)*600 + 'px');
-                span.style.animationDelay = Math.random() + 's';
-                celebrationContainer.appendChild(span);
-            }
-            celebrationContainer.style.display = 'block';
-            setTimeout(()=>{ celebrationContainer.style.display = 'none'; }, 5000);
-        } else {
-            offer.innerText = '😢 Better luck next time.';
+        const used = usedBills.find(b=>b.billNo===billNo);
+        if(used){
+            used.gift=randomGift;
+            used.coupon=code;
+            saveUsedBills();
+            document.getElementById('condCouponCode').innerText=`Coupon Code: ${code}`;
+            document.getElementById('condWinningGift').innerText=`Winning Gift: ${randomGift}`;
         }
-        document.getElementById('afterScratchConditionBox').style.display = 'block';
-    }, 800);
+
+        const celebrationContainer=document.getElementById('celebrationContainer');
+        celebrationContainer.innerHTML='';
+        const particles=['🌸','✨','🎉','💥','🌟','💫','🌟','✨','⚡'];
+        for(let i=0;i<60;i++){
+            const span=document.createElement('span');
+            span.className='particle';
+            span.innerText=particles[Math.floor(Math.random()*particles.length)];
+            span.style.left=Math.random()*window.innerWidth+'px';
+            span.style.top=Math.random()*window.innerHeight+'px';
+            span.style.setProperty('--x',(Math.random()-0.5)*600+'px');
+            span.style.setProperty('--y',(Math.random()-0.5)*600+'px');
+            span.style.animationDelay=Math.random()+'s';
+            celebrationContainer.appendChild(span);
+        }
+        celebrationContainer.style.display='block';
+        setTimeout(()=>{celebrationContainer.style.display='none';},5000);
+    },1000);
 }
 
-// Initialize scratch overlay
+// ===== Init Scratch Overlay =====
 ctx.fillStyle='silver';
 ctx.fillRect(0,0,canvas.width,canvas.height);
 ctx.font='bold 18px Arial';
@@ -575,4 +527,4 @@ canvas.addEventListener('pointermove', performScratch);
 canvas.addEventListener('pointerup', endScratch);
 </script>
 </body>
-</html>
+</html> 
