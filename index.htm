@@ -390,17 +390,18 @@ function sendWhatsAppTemplate(randomGift, code, dateTime){
 
   const phone = rawPhone.toString().replace(/\D/g,'');
 
-  const url = `https://app.xpressbot.org/api/v1/whatsapp/send/template`;
-  const payload = {
-    apiToken: "13371|8i5vIwK0zrWgXTRHBbVIaWm5HaQS0kfnpjZN23M79845350d",
-    phone_number_id: "771424666049213",
-    template_id: "244557",   // update with correct template ID
-    phone_number: phone,
-    template_params: [
-      randomGift,                                        // {{wongift-1}}
-      document.getElementById('billAmt').value || "0"    // {{billamount-2}}
-    ]
-  };
+const url = `https://app.xpressbot.org/api/v1/whatsapp/send/template`;
+
+const payload = {
+  apiToken: "13371|8i5vIwK0zrWgXTRHBbVIaWm5HaQS0kfnpjZN23M79845350d",
+  phone_number_id: "771424666049213",
+  template_id: "244557",   // ✅ use correct template ID
+  phone_number: phone,
+  template_params: {
+    "templateVariable-wongift-1": randomGift,                         // {{wongift-1}}
+    "templateVariable-billamount-2": document.getElementById('billAmt').value || "0"  // {{billamount-2}}
+  }
+};
 
   fetch(url, {
     method: "POST",
