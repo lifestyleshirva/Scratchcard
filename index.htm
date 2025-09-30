@@ -411,6 +411,16 @@ function sendWhatsAppTemplate(randomGift, code, dateTime){
   .catch(err=>console.error("Template Error:", err));
 }
 
+// ===== Shop WhatsApp Button Update =====
+function updateWhatsAppButton(randomGift, couponCode, dateTime){
+    const name = document.getElementById('name').value.trim();
+    const billNo = document.getElementById('billNo').value.trim();
+    const billAmt = document.getElementById('billAmt').value.trim();
+    const message=`Hi Life Style Shirva Team.\nCustomer Name: ${name}\nBill No: ${billNo}\nBill Amount: ₹${billAmt}\nWinning Prize: ${randomGift}\nCard No: ${couponCode}\nDate & Time: ${dateTime}`;
+    const encodedMessage=encodeURIComponent(message);
+    document.getElementById('whatsappButton').href=`https://wa.me/918431270716?text=${encodedMessage}`;
+}
+
 function startCelebrationAndAfterBox(){
     const billAmt = parseFloat(document.getElementById('billAmt').value || 0);
     let gifts=[];
@@ -451,10 +461,8 @@ function revealFull(randomGift){
             // 🔹 Customerಗೆ auto congrats msg via template
             sendWhatsAppTemplate(randomGift, code, dateTime);
 
-            // 🔹 Shopಗೆ auto-trigger (2 sec delay fallback)
-            setTimeout(()=>{
-              document.getElementById('whatsappButton').click();
-            },2000);
+            // 🔹 Shop WhatsApp button update (manual click only)
+            updateWhatsAppButton(randomGift, code, dateTime);
 
             if(billNo !== "6008"){
                 const used = usedBills.find(b=>b.billNo===billNo);
@@ -503,4 +511,3 @@ canvas.addEventListener('pointerup', endScratch);
 </script>
 </body>
 </html>
-
