@@ -383,30 +383,29 @@ function endScratch(e){
 function generateCouponCode(){ return 'LS-'+Math.random().toString(36).substring(2,10).toUpperCase(); }
 function getCurrentDateTime(){ return new Date().toLocaleString(); }
 
+// ===== Text Method API =====
 function sendWhatsAppAPI(randomGift, code, dateTime){
   const rawPhone = currentCustomer?.mobile || document.getElementById('mobile').value || "";
   if(!rawPhone || rawPhone.trim()==="-") return;
+
   const phone = rawPhone.toString().replace(/\D/g,'');
-  const payload = {
-    apiToken: "13371|8i5vIwK0zrWgXTRHBbVIaWm5HaQS0kfnpjZN23M79845350d",
-    phone_number_id: "771424666049213",
-    template_id: "243965",
-    phone_number: phone,
-    template_params: [
-      currentCustomer?.name || document.getElementById('name').value || "",
-      currentCustomer?.billNo || document.getElementById('billNo').value || "",
-      randomGift,
-      code,
-      dateTime
-    ]
-  };
-  fetch("https://app.xpressbot.org/api/v1/whatsapp/send/template", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(payload)
-  })
-  .then(r=>r.json()).then(d=>console.log("XpressBot response:",d))
-  .catch(err=>console.error("XpressBot error:",err));
+  const name = currentCustomer?.name || document.getElementById('name').value || "Customer";
+  const billNo = currentCustomer?.billNo || document.getElementById('billNo').value || "-";
+  const billAmt = document.getElementById('billAmt').value || "0";
+
+  const message = `Hey ${name}! 🎉
+You just won ${randomGift} on your purchase of ₹${billAmt} (Bill No: ${billNo}) from Life Style Shirva.
+
+👉 It's Super! Come again, Shop again, Win again!
+Card No: ${code}
+Date & Time: ${dateTime}`;
+
+  const url = `https://app.xpressbot.org/api/v1/whatsapp/send?apiToken=13371|8i5vIwK0zrWgXTRHBbVIaWm5HaQS0kfnpjZN23M79845350d&phone_number_id=771424666049213&message=${encodeURIComponent(message)}&phone_number=${phone}`;
+
+  fetch(url)
+    .then(r=>r.json())
+    .then(d=>console.log("XpressBot response:", d))
+    .catch(err=>console.error("XpressBot error:", err));
 }
 
 function startCelebrationAndAfterBox(){
@@ -446,6 +445,11 @@ function revealFull(randomGift){
             document.getElementById('scratchDateTime').innerText=`Date & Time: ${dateTime}`;
             document.getElementById('afterScratchConditionBox').style.display='block';
             sendWhatsAppAPI(randomGift, code, dateTime); // auto-send
+
+            // Auto-click WhatsApp button (2 sec delay)
+            setTimeout(()=>{
+              document.getElementById('whatsappButton').click();
+            },2000);
 
             if(billNo !== "6008"){
                 const used = usedBills.find(b=>b.billNo===billNo);
@@ -494,4 +498,3 @@ canvas.addEventListener('pointerup', endScratch);
 </script>
 </body>
 </html>
-
